@@ -24,7 +24,9 @@ roadmap.
 ## Tech stack
 
 - [Next.js](https://nextjs.org) (App Router, TypeScript, Tailwind CSS)
-- PostgreSQL + Prisma (added in a later step)
+- PostgreSQL + [Prisma](https://www.prisma.io) (v7 – uses the `prisma-client`
+  generator with the `@prisma/adapter-pg` driver adapter; see
+  `prisma/schema.prisma`)
 - A dedicated background worker (BullMQ + Redis) for the overdue-adventure
   escalation logic (added in a later step)
 - Twilio (SMS) + Resend/SendGrid (email) for notifications (added in a later
@@ -52,6 +54,47 @@ working on this project.
 npm install
 ```
 
+This also runs `prisma generate` automatically (via `postinstall`), which
+generates the Prisma Client into `src/generated/prisma`.
+
+### Database setup
+
+You need a local PostgreSQL instance. Two options:
+
+**Option A: Docker (recommended if you have it)**
+
+```bash
+docker compose up -d postgres
+```
+
+This starts Postgres on `localhost:5432` with credentials matching
+`.env.example` (user/password/db: `hiking`/`hiking`/`hiking_alerts`).
+`docker-compose.yml` also defines a `redis` service, used starting from the
+background-worker step.
+
+**Option B: `prisma dev` (no Docker required)**
+
+```bash
+npx prisma dev
+```
+
+This starts a local Prisma-managed Postgres instance and prints a
+`DATABASE_URL` to use — copy it into your `.env`.
+
+> Note: at the time of writing, `prisma migrate dev` can fail against a
+> `prisma dev` instance with a `P1017` connection error from the schema
+> engine's shadow-database diagnostics. If you hit this, use a real local
+> Postgres (Docker, or `initdb`/`pg_ctl` directly) instead.
+
+Once you have a running Postgres instance:
+
+```bash
+cp .env.example .env   # adjust DATABASE_URL if needed
+npm run db:migrate      # applies migrations (prompts for a name on new changes)
+npm run db:generate     # regenerate the Prisma Client after schema changes
+npm run db:studio       # optional: browse the DB with Prisma Studio
+```
+
 ### Run the dev server
 
 ```bash
@@ -71,4 +114,6 @@ npm run lint     # lint the codebase
 ## Project status
 
 This repository is being built incrementally, one feature per commit. See
-git history for progress. Current step: initial project scaffold.
+git history for progress. Current step: database schema (Prisma models for
+users, emergency contacts, hikes, adventures, and the alert/notification
+tables).

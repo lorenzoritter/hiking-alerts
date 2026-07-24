@@ -1,0 +1,208 @@
+// Hiking Alerts data model.
+// Learn more about Prisma schema: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// --- Enums -------------------------------------------------------------
+
+enum AdventureStatus {
+  DRAFT
+  ACTIVE
+  HIKER_PINGED
+  CONTACTS_ALERTED
+  CHECKED_OUT
+  RESOLVED_LATE
+}
+
+enum AlertEventType {
+  HIKER_PINGED
+  ACKNOWLEDGED_EXTENDED
+  CONTACTS_ALERTED
+  CHECKED_OUT
+  RESOLVED_LATE_STAND_DOWN
+}
+
+enum NotificationChannel {
+  SMS
+  EMAIL
+}
+
+enum NotificationStatus {
+  PENDING
+  SENT
+  FAILED
+}
+
+// --- Models --------------------------------------------------------------
+
+model User {
+  id           String   @id @default(cuid())
+  name         String
+  email        String   @unique
+  phone        String?
+  passwordHash String
+  timezone     String   @default("UTC")
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  emergencyContacts EmergencyContact[]
+  hikes             Hike[]
+  adventures        Adventure[]
+  alertComments     AlertComment[]
+
+  @@map("users")
+}
+
+/// A contact a hiker can notify in case of an emergency. Contacts do not
+/// need an account of their own; they access adventure/alert status via a
+/// signed link (see AdventureContact.accessToken).
+model EmergencyContact {
+  id          String   @id @default(cuid())
+  ownerUserId String
+  owner       User     @relation(fields: [ownerUserId], references: [id], onDelete: Cascade)
+  name        String
+  phone       String?
+  email       String?
+  isDefault   Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  adventureLinks AdventureContact[]
+  alertComments  AlertComment[]
+
+  @@index([ownerUserId])
+  @@map("emergency_contacts")
+}
+
+/// A plain-text (for now) description of a hike. Later this can be
+/// extended with imported routes / mapping data.
+model Hike {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title       String
+  description String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  adventures Adventure[]
+
+  @@index([userId])
+  @@map("hikes")
+}
+
+/// A shared hiking plan: a hike paired with an expected return time and a
+/// set of emergency contacts. Drives the overdue-escalation state machine.
+model Adventure {
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  hikeId String
+  hike   Hike   @relation(fields: [hikeId], references: [id], onDelete: Restrict)
+
+  // IANA timezone name (e.g. "America/Denver") the start/return times are
+  // expressed in.
+  timezone String
+
+  startAt          DateTime
+  expectedReturnAt DateTime
+
+  // How long after `expectedReturnAt` before the hiker is pinged, and how
+  // long after that ping before emergency contacts are alerted if there's
+  // no acknowledgement/checkout.
+  pingGraceMinutes  Int @default(30)
+  alertGraceMinutes Int @default(30)
+
+  status       AdventureStatus @default(ACTIVE)
+  checkedOutAt DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  contacts      AdventureContact[]
+  events        AlertEvent[]
+  comments      AlertComment[]
+  notifications NotificationLog[]
+
+  @@index([userId])
+  @@index([status])
+  @@map("adventures")
+}
+
+/// Join table linking an Adventure to the EmergencyContacts it was shared
+/// with, plus a unique per-adventure access token used for the no-login
+/// contact-facing link.
+model AdventureContact {
+  id          String    @id @default(cuid())
+  adventureId String
+  adventure   Adventure @relation(fields: [adventureId], references: [id], onDelete: Cascade)
+  contactId   String
+  contact     EmergencyContact @relation(fields: [contactId], references: [id], onDelete: Cascade)
+
+  accessToken String    @unique
+  notifiedAt  DateTime?
+  createdAt   DateTime  @default(now())
+
+  @@unique([adventureId, contactId])
+  @@map("adventure_contacts")
+}
+
+/// Audit trail of state transitions for an Adventure (pinged, extended,
+/// escalated to contacts, checked out, etc).
+model AlertEvent {
+  id          String         @id @default(cuid())
+  adventureId String
+  adventure   Adventure      @relation(fields: [adventureId], references: [id], onDelete: Cascade)
+  type        AlertEventType
+  // Free-form details, e.g. the old/new expectedReturnAt on an extension.
+  metadata    Json?
+  createdAt   DateTime       @default(now())
+
+  @@index([adventureId])
+  @@map("alert_events")
+}
+
+/// A comment left on an adventure's alert thread, either by the hiker or by
+/// one of the emergency contacts (via their no-login link), used to
+/// coordinate during an active alert.
+model AlertComment {
+  id          String    @id @default(cuid())
+  adventureId String
+  adventure   Adventure @relation(fields: [adventureId], references: [id], onDelete: Cascade)
+
+  authorUserId    String?
+  authorUser      User?             @relation(fields: [authorUserId], references: [id], onDelete: SetNull)
+  authorContactId String?
+  authorContact   EmergencyContact? @relation(fields: [authorContactId], references: [id], onDelete: SetNull)
+
+  body      String
+  createdAt DateTime @default(now())
+
+  @@index([adventureId])
+  @@map("alert_comments")
+}
+
+/// Delivery log for outbound notifications (SMS/email) sent for an
+/// adventure, for auditing/debugging.
+model NotificationLog {
+  id          String    @id @default(cuid())
+  adventureId String
+  adventure   Adventure @relation(fields: [adventureId], references: [id], onDelete: Cascade)
+
+  channel      NotificationChannel
+  recipient    String
+  status       NotificationStatus  @default(PENDING)
+  errorMessage String?
+  sentAt       DateTime?
+  createdAt    DateTime            @default(now())
+
+  @@index([adventureId])
+  @@map("notification_logs")
+}
