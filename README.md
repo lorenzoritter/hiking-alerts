@@ -111,6 +111,13 @@ npm run start   # run the production build
 npm run lint     # lint the codebase
 ```
 
+## Development tooling
+
+This repo configures an [opencode](https://opencode.ai) `code-reviewer`
+subagent (`.opencode/agent/code-reviewer.md`) that reviews diffs for
+correctness, security, and best practices. It's read-only (no edit
+permission) and is meant to be invoked before finalizing a pull request.
+
 ## Project status
 
 This repository is being built incrementally, one step per pull request.
