@@ -1,0 +1,24 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: hiking
+      POSTGRES_PASSWORD: hiking
+      POSTGRES_DB: hiking_alerts
+    ports:
+      - "5432:5432"
+    volumes:
+      - hiking-alerts-postgres:/var/lib/postgresql/data
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - hiking-alerts-redis:/data
+
+volumes:
+  hiking-alerts-postgres:
+  hiking-alerts-redis:
