@@ -18,8 +18,8 @@ expected return time.
    time, the hiker is pinged first. If there's no response within the grace
    period, emergency contacts are alerted and can comment to coordinate.
 
-See `docs/plan.md` (if present) or project discussion for the full phased
-roadmap.
+See [`docs/plan.md`](docs/plan.md) for the full phased build plan and
+progress checklist.
 
 ## Tech stack
 
@@ -113,7 +113,6 @@ npm run lint     # lint the codebase
 
 ## Project status
 
-This repository is being built incrementally, one feature per commit. See
-git history for progress. Current step: database schema (Prisma models for
-users, emergency contacts, hikes, adventures, and the alert/notification
-tables).
+This repository is being built incrementally, one step per pull request.
+See [`docs/plan.md`](docs/plan.md) for the checklist of steps and what's
+done so far.
