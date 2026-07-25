@@ -3,13 +3,22 @@
 import bcrypt from "bcryptjs";
 import { redirect } from "next/navigation";
 
+import { Prisma } from "@/generated/prisma/client";
 import { prisma } from "@/lib/prisma";
-import { createSession, deleteSession } from "@/lib/auth/session";
+import {
+  assertAuthConfiguration,
+  createSession,
+  deleteSession,
+} from "@/lib/auth/session";
 import {
   loginSchema,
   signupSchema,
   type AuthFormState,
 } from "@/lib/auth/definitions";
+import {
+  clearLoginAttempts,
+  consumeLoginAttempt,
+} from "@/lib/auth/rate-limit";
 
 // Used when an email is not found so login attempts perform a password hash
 // comparison in both cases, avoiding an obvious timing difference.
@@ -31,19 +40,32 @@ export async function signup(
   }
 
   const { name, email, password } = validatedFields.data;
+  assertAuthConfiguration();
   const passwordHash = await bcrypt.hash(password, 12);
+  const normalizedEmail = email.toLowerCase();
+
+  let user: { id: string };
 
   try {
-    const user = await prisma.user.create({
-      data: { name, email: email.toLowerCase(), passwordHash },
+    user = await prisma.user.create({
+      data: { name, email: normalizedEmail, passwordHash },
       select: { id: true },
     });
+  } catch (error) {
+    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002") {
+      return { message: "Unable to create the account. Please check your details and try again." };
+    }
 
+    return {
+      message: "Unable to create the account. Please try again later.",
+    };
+  }
+
+  try {
     await createSession(user.id);
   } catch {
-    return {
-      message: "Unable to create the account. The email may already be in use.",
-    };
+    await prisma.user.delete({ where: { id: user.id } }).catch(() => undefined);
+    return { message: "Unable to create the account. Please try again later." };
   }
 
   redirect("/dashboard");
@@ -63,10 +85,25 @@ export async function login(
   }
 
   const { email, password } = validatedFields.data;
-  const user = await prisma.user.findUnique({
-    where: { email: email.toLowerCase() },
-    select: { id: true, passwordHash: true },
-  });
+  const normalizedEmail = email.toLowerCase();
+
+  assertAuthConfiguration();
+
+  if (!consumeLoginAttempt(normalizedEmail)) {
+    return { message: "Invalid email or password." };
+  }
+
+  let user: { id: string; passwordHash: string } | null;
+
+  try {
+    user = await prisma.user.findUnique({
+      where: { email: normalizedEmail },
+      select: { id: true, passwordHash: true },
+    });
+  } catch {
+    return { message: "Unable to sign in right now. Please try again later." };
+  }
+
   const passwordMatches = await bcrypt.compare(
     password,
     user?.passwordHash ?? DUMMY_PASSWORD_HASH,
@@ -76,6 +113,7 @@ export async function login(
     return { message: "Invalid email or password." };
   }
 
+  clearLoginAttempts(normalizedEmail);
   await createSession(user.id);
   redirect("/dashboard");
 }

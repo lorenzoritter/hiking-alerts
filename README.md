@@ -104,8 +104,10 @@ The example file includes a placeholder; generate a value with:
 openssl rand -base64 32
 ```
 
-Authentication uses bcrypt password hashes and encrypted, HTTP-only cookie
-sessions. Never commit `.env` or share the `AUTH_SECRET`.
+Authentication uses bcrypt password hashes and signed, HTTP-only cookie
+sessions. Never commit `.env` or share the `AUTH_SECRET`. Login has a
+best-effort in-memory rate limit for this single-instance MVP; use a shared
+store such as Redis before deploying multiple web instances.
 
 ### Run the dev server
 

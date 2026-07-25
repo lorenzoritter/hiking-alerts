@@ -9,11 +9,19 @@ const SESSION_DURATION = "7d";
 function getSessionKey() {
   const secret = process.env.AUTH_SECRET;
 
-  if (!secret || secret.length < 32) {
+  if (
+    !secret ||
+    secret.length < 32 ||
+    secret === "replace-with-a-random-value-at-least-32-characters-long"
+  ) {
     throw new Error("AUTH_SECRET must be at least 32 characters long");
   }
 
   return new TextEncoder().encode(secret);
+}
+
+export function assertAuthConfiguration() {
+  getSessionKey();
 }
 
 export async function createSession(userId: string) {
@@ -40,8 +48,10 @@ export async function decryptSession(token: string | undefined) {
     return null;
   }
 
+  const sessionKey = getSessionKey();
+
   try {
-    const { payload } = await jwtVerify(token, getSessionKey(), {
+    const { payload } = await jwtVerify(token, sessionKey, {
       algorithms: ["HS256"],
     });
 

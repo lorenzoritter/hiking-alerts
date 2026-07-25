@@ -6,7 +6,11 @@ const password = z
   .max(72, "Password must be 72 characters or fewer.")
   .regex(/[a-zA-Z]/, "Password must contain a letter.")
   .regex(/[0-9]/, "Password must contain a number.")
-  .regex(/[^a-zA-Z0-9]/, "Password must contain a special character.");
+  .regex(/[^a-zA-Z0-9]/, "Password must contain a special character.")
+  .refine(
+    (value) => new TextEncoder().encode(value).length <= 72,
+    "Password is too long when encoded. Use 72 bytes or fewer.",
+  );
 
 export const signupSchema = z.object({
   name: z.string().trim().min(2, "Name must be at least 2 characters long.").max(100),
@@ -16,7 +20,13 @@ export const signupSchema = z.object({
 
 export const loginSchema = z.object({
   email: z.string().trim().email("Enter a valid email address.").max(320),
-  password: z.string().min(1, "Enter your password."),
+  password: z
+    .string()
+    .min(1, "Enter your password.")
+    .refine(
+      (value) => new TextEncoder().encode(value).length <= 72,
+      "Password is too long when encoded. Use 72 bytes or fewer.",
+    ),
 });
 
 export type AuthFormState =

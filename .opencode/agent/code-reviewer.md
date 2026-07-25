@@ -88,6 +88,14 @@ order:
    dependencies) against the docs actually installed in `node_modules` or
    the relevant `.agents/skills` reference before assuming it's a bug.
 
+5. If the current branch belongs to a pull request, publish the review to
+   that PR before returning the result. Discover the PR with `gh pr view`
+   (or `gh pr list --head <branch>`), then use `gh pr comment <number>` with
+   the complete verdict, findings, resolved findings, and verification
+   results. Do not include secrets, tokens, or sensitive personal data in
+   the comment. If the branch is not associated with a PR, report the review
+   normally and say that no PR comment was posted.
+
 ## Output format
 
 Report back with:
@@ -102,3 +110,6 @@ Report back with:
   risky," say what's risky about it and what to do instead.
 - If you ran lint/build/tests, report the result briefly.
 - If everything is clean, say so plainly instead of manufacturing findings.
+- State whether the review was posted to a PR, including the PR URL when
+  available. The posted comment and your response should contain the same
+  findings and verification results.
