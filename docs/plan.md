@@ -24,9 +24,9 @@ items as scope evolves.
       maintain a default contact.
 - [x] **5. Hike creation** — Owner-scoped CRUD APIs and dashboard UI for
       free-text hikes (title/description).
-- [ ] **6. Adventure creation** — Form to link a hike, set expected return
-      date/time + timezone, choose contacts (default or ad hoc), set
-      ping/alert grace periods; API routes + DB writes.
+- [x] **6. Adventure creation** — Timezone-aware form and owner-scoped API
+      route to link a hike, choose contacts, set expected return time, and
+      configure ping/contact grace periods.
 - [ ] **7. Adventure sharing** — Generate signed per-contact tokens, send
       SMS/email with a no-login link; build the contact-facing status page
       (view adventure info + alert state).
