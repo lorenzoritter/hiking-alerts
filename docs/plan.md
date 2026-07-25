@@ -30,9 +30,9 @@ items as scope evolves.
 - [x] **7. Adventure sharing** — Generate expiring opaque per-contact bearer
       tokens, queue masked notification records, provide share links, and add the
       no-login contact-facing status page.
-- [ ] **8. Checkout flow** — "Check out" action, updates adventure
-      status/timestamp; notifies contacts with a stand-down notice if it
-      happens after they were already alerted.
+- [x] **8. Checkout flow** — Guarded transactional checkout endpoint and
+      dashboard action, audit events, and durable queued late stand-down
+      notifications after contacts were alerted.
 - [ ] **9. Worker service scaffold** — Separate Node worker package,
       BullMQ + Redis wiring, repeating job skeleton polling every 1–2 min.
 - [ ] **10. Escalation logic** — Implement the state machine in the
