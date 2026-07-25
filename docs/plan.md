@@ -33,8 +33,9 @@ items as scope evolves.
 - [x] **8. Checkout flow** — Guarded transactional checkout endpoint and
       dashboard action, audit events, and durable queued late stand-down
       notifications after contacts were alerted.
-- [ ] **9. Worker service scaffold** — Separate Node worker package,
-      BullMQ + Redis wiring, repeating job skeleton polling every 1–2 min.
+- [x] **9. Worker service scaffold** — Separate Node worker package,
+      BullMQ + Redis wiring, graceful shutdown, and a repeating 60-second
+      scan skeleton.
 - [ ] **10. Escalation logic** — Implement the state machine in the
       worker: overdue → hiker pinged → (acknowledge-and-extend, which
       requires the hiker to submit a new expected return time) or →

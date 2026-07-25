@@ -95,6 +95,23 @@ npm run db:generate     # regenerate the Prisma Client after schema changes
 npm run db:studio       # optional: browse the DB with Prisma Studio
 ```
 
+### Run the worker
+
+Start Redis alongside Postgres:
+
+```bash
+docker compose up -d postgres redis
+```
+
+In a second terminal, run the worker:
+
+```bash
+npm run worker:dev
+```
+
+The worker currently logs each scheduled scan every 60 seconds. The overdue
+adventure state machine is added in the next step.
+
 ### Authentication setup
 
 Set `AUTH_SECRET` in `.env` to a random value of at least 32 characters.
@@ -123,6 +140,7 @@ Open [http://localhost:3000](http://localhost:3000) to view the app.
 npm run build   # production build
 npm run start   # run the production build
 npm run lint     # lint the codebase
+npm run worker:build  # compile the background worker
 ```
 
 ## Development tooling

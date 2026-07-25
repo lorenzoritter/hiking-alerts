@@ -2,6 +2,7 @@
   "name": "hiking-alerts",
   "version": "0.1.0",
   "private": true,
+  "workspaces": ["worker"],
   "scripts": {
     "dev": "next dev",
     "build": "next build",
@@ -11,14 +12,19 @@
     "db:generate": "prisma generate",
     "db:migrate": "prisma migrate dev",
     "db:migrate:deploy": "prisma migrate deploy",
-    "db:studio": "prisma studio"
+    "db:studio": "prisma studio",
+    "worker:dev": "tsx worker/src/index.ts",
+    "worker:build": "tsc -p worker/tsconfig.json",
+    "worker:start": "node worker/dist/src/index.js"
   },
   "dependencies": {
     "@prisma/adapter-pg": "^7.9.0",
     "@prisma/client": "^7.9.0",
     "bcryptjs": "^3.0.3",
+    "bullmq": "^5.81.2",
     "date-fns-tz": "^3.2.0",
     "dotenv": "^17.4.2",
+    "ioredis": "^5.11.1",
     "jose": "^6.2.4",
     "next": "16.2.11",
     "pg": "^8.22.0",
@@ -37,6 +43,7 @@
     "eslint-config-next": "16.2.11",
     "prisma": "^7.9.0",
     "tailwindcss": "^4",
+    "tsx": "^4.23.1",
     "typescript": "^5"
   }
 }
