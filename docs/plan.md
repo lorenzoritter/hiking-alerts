@@ -16,8 +16,9 @@ items as scope evolves.
       (`User`, `EmergencyContact`, `Hike`, `Adventure`, `AdventureContact`,
       `AlertEvent`, `AlertComment`, `NotificationLog`), initial migration,
       local dev DB setup (`docker-compose.yml` for Postgres + Redis).
-- [ ] **3. Auth** — Sign up / log in, session handling, basic profile page
-      shell.
+- [x] **3. Auth** — Sign up / log in, encrypted cookie session handling,
+      server-side session verification, protected dashboard/profile pages,
+      and logout.
 - [ ] **4. Emergency contacts CRUD** — Profile UI + API routes to add,
       edit, and remove default emergency contacts.
 - [ ] **5. Hike creation** — CRUD for free-text hikes (title/description),
