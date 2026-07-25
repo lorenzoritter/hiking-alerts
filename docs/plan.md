@@ -22,8 +22,8 @@ items as scope evolves.
 - [x] **4. Emergency contacts CRUD** — Profile UI + owner-scoped API routes
       to add and remove contacts, validate notification channels, and
       maintain a default contact.
-- [ ] **5. Hike creation** — CRUD for free-text hikes (title/description),
-      list/detail views.
+- [x] **5. Hike creation** — Owner-scoped CRUD APIs and dashboard UI for
+      free-text hikes (title/description).
 - [ ] **6. Adventure creation** — Form to link a hike, set expected return
       date/time + timezone, choose contacts (default or ad hoc), set
       ping/alert grace periods; API routes + DB writes.
