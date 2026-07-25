@@ -2,9 +2,16 @@ import Link from "next/link";
 
 import { logout } from "@/lib/auth/actions";
 import { requireUser } from "@/lib/auth/dal";
+import { prisma } from "@/lib/prisma";
+import { ContactsPanel } from "@/app/profile/contacts-panel";
 
 export default async function ProfilePage() {
   const user = await requireUser();
+  const contacts = await prisma.emergencyContact.findMany({
+    where: { ownerUserId: user.id },
+    select: { id: true, name: true, phone: true, email: true, isDefault: true },
+    orderBy: [{ isDefault: "desc" }, { name: "asc" }],
+  });
 
   return (
     <main className="min-h-screen bg-slate-50 px-6 py-10">
@@ -26,8 +33,9 @@ export default async function ProfilePage() {
             <div className="grid gap-1 py-4 sm:grid-cols-3"><dt className="text-sm font-medium text-slate-500">Phone</dt><dd className="text-sm text-slate-950 sm:col-span-2">{user.phone ?? "Not set"}</dd></div>
             <div className="grid gap-1 py-4 sm:grid-cols-3"><dt className="text-sm font-medium text-slate-500">Timezone</dt><dd className="text-sm text-slate-950 sm:col-span-2">{user.timezone}</dd></div>
           </dl>
-          <p className="mt-6 rounded-xl bg-amber-50 px-4 py-3 text-sm text-amber-900">Profile editing and emergency contact management are part of the next step.</p>
+          <p className="mt-6 rounded-xl bg-amber-50 px-4 py-3 text-sm text-amber-900">Profile editing will be added in a later step. Emergency contacts are ready to use below.</p>
         </div>
+        <ContactsPanel initialContacts={contacts} />
       </div>
     </main>
   );
