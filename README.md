@@ -95,6 +95,18 @@ npm run db:generate     # regenerate the Prisma Client after schema changes
 npm run db:studio       # optional: browse the DB with Prisma Studio
 ```
 
+### Authentication setup
+
+Set `AUTH_SECRET` in `.env` to a random value of at least 32 characters.
+The example file includes a placeholder; generate a value with:
+
+```bash
+openssl rand -base64 32
+```
+
+Authentication uses bcrypt password hashes and encrypted, HTTP-only cookie
+sessions. Never commit `.env` or share the `AUTH_SECRET`.
+
 ### Run the dev server
 
 ```bash
@@ -115,8 +127,9 @@ npm run lint     # lint the codebase
 
 This repo configures an [opencode](https://opencode.ai) `code-reviewer`
 subagent (`.opencode/agent/code-reviewer.md`) that reviews diffs for
-correctness, security, and best practices. It's read-only (no edit
-permission) and is meant to be invoked before finalizing a pull request.
+correctness, security, and best practices. Shell commands are allowed for
+inspection and verification; file edits require confirmation. Invoke it
+before finalizing a pull request.
 
 ## Project status
 
