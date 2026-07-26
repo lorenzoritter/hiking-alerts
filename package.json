@@ -14,8 +14,9 @@
     "db:migrate:deploy": "prisma migrate deploy",
     "db:studio": "prisma studio",
     "worker:dev": "tsx worker/src/index.ts",
-    "worker:build": "tsc -p worker/tsconfig.json",
-    "worker:start": "node worker/dist/src/index.js"
+    "worker:build": "prisma generate && tsc -p worker/tsconfig.json",
+    "worker:start": "node worker/dist/worker/src/index.js",
+    "test": "tsx --test \"src/**/*.test.ts\" \"worker/src/**/*.test.ts\""
   },
   "dependencies": {
     "@prisma/adapter-pg": "^7.9.0",

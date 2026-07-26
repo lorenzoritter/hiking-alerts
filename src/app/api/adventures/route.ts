@@ -1,18 +1,9 @@
-import { fromZonedTime } from "date-fns-tz";
 import { NextResponse } from "next/server";
 
 import { getCurrentUser } from "@/lib/auth/dal";
 import { adventureSchema } from "@/lib/adventures/definitions";
+import { parseLocalDateTime, isValidTimeZone } from "@/lib/adventures/time";
 import { prisma } from "@/lib/prisma";
-
-function isValidTimeZone(timezone: string) {
-  try {
-    Intl.DateTimeFormat("en-US", { timeZone: timezone }).format();
-    return true;
-  } catch {
-    return false;
-  }
-}
 
 export async function GET() {
   const user = await getCurrentUser();
@@ -67,9 +58,9 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Invalid timezone" }, { status: 400 });
   }
 
-  const startAt = fromZonedTime(data.startAtLocal, data.timezone);
-  const expectedReturnAt = fromZonedTime(data.expectedReturnAtLocal, data.timezone);
-  if (Number.isNaN(startAt.getTime()) || Number.isNaN(expectedReturnAt.getTime())) {
+  const startAt = parseLocalDateTime(data.startAtLocal, data.timezone);
+  const expectedReturnAt = parseLocalDateTime(data.expectedReturnAtLocal, data.timezone);
+  if (!startAt || !expectedReturnAt) {
     return NextResponse.json({ error: "Invalid date or time" }, { status: 400 });
   }
   if (startAt >= expectedReturnAt) {

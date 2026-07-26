@@ -36,10 +36,10 @@ items as scope evolves.
 - [x] **9. Worker service scaffold** — Separate Node worker package,
       BullMQ + Redis wiring, graceful shutdown, and a repeating 60-second
       scan skeleton.
-- [ ] **10. Escalation logic** — Implement the state machine in the
-      worker: overdue → hiker pinged → (acknowledge-and-extend, which
-      requires the hiker to submit a new expected return time) or →
-      contacts alerted; logging to `AlertEvent` / `NotificationLog`.
+- [x] **10. Escalation logic** — Implement the worker state machine:
+      overdue → hiker pinged → acknowledge-and-extend (requires a new
+      expected return time) or contacts alerted, with guarded transitions
+      and `AlertEvent` / `NotificationLog` records.
 - [ ] **11. Alert comments + hiker dashboard** — Contacts can comment on
       an alert; hiker dashboard listing active/past adventures with
       status.

@@ -3,6 +3,8 @@ import "dotenv/config";
 import { Worker } from "bullmq";
 
 import { overdueQueue, redisConnection, scheduleOverdueScan } from "./queue.js";
+import { scanOverdueAdventures } from "./escalation.js";
+import { prisma } from "./prisma.js";
 
 const worker = new Worker(
   "hiking-alerts-overdue",
@@ -11,8 +13,8 @@ const worker = new Worker(
       return;
     }
 
-    // Step 10 replaces this heartbeat with the overdue state-machine scan.
-    console.log(`Overdue scan scheduled at ${new Date().toISOString()}`);
+    const result = await scanOverdueAdventures();
+    console.log(`Overdue scan ${new Date().toISOString()}: ${JSON.stringify(result)}`);
   },
   { connection: redisConnection },
 );
@@ -35,8 +37,9 @@ async function shutdown() {
   if (shutdownPromise) return shutdownPromise;
   shutdownPromise = (async () => {
     try {
-      await worker.close();
-      await overdueQueue.close();
+      await worker.close().catch((error: unknown) => console.error(`Worker shutdown error: ${error instanceof Error ? error.message : "unknown error"}`));
+      await overdueQueue.close().catch((error: unknown) => console.error(`Queue shutdown error: ${error instanceof Error ? error.message : "unknown error"}`));
+      await prisma.$disconnect().catch((error: unknown) => console.error(`Database shutdown error: ${error instanceof Error ? error.message : "unknown error"}`));
     } finally {
       await redisConnection.quit().catch((error: unknown) => {
         console.error(`Redis shutdown error: ${error instanceof Error ? error.message : "unknown error"}`);
