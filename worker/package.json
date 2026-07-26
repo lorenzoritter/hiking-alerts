@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "tsx src/index.ts",
     "prebuild": "DOTENV_CONFIG_PATH=../.env prisma generate --config ../prisma.config.ts",
-    "build": "tsc -p tsconfig.json",
+    "build": "tsc -p tsconfig.json && node scripts/fix-generated-imports.mjs",
     "start": "DOTENV_CONFIG_PATH=../.env node dist/worker/src/index.js"
   },
   "dependencies": {

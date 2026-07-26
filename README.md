@@ -11,12 +11,14 @@ expected return time.
 2. **Share an adventure** – pair a hike with an expected return date/time and
    a set of emergency contacts (defaults can be set on your profile).
    Contacts receive a link (no account required) to view the adventure and
-   its status.
+   its status; external notification delivery is not enabled yet.
 3. **Check out** – mark the adventure as completed, ideally before the
    expected return time.
 4. **Alert** – if the adventure isn't checked out by the expected return
-   time, the hiker is pinged first. If there's no response within the grace
-   period, emergency contacts are alerted and can comment to coordinate.
+   time, a hiker-ping notification record is queued first. If there's no
+   response within the grace period, contact-alert records are queued and
+   contacts can comment to coordinate. SMS/email provider delivery is a
+   follow-up deployment task.
 
 See [`docs/plan.md`](docs/plan.md) for the full phased build plan and
 progress checklist.
@@ -27,10 +29,10 @@ progress checklist.
 - PostgreSQL + [Prisma](https://www.prisma.io) (v7 – uses the `prisma-client`
   generator with the `@prisma/adapter-pg` driver adapter; see
   `prisma/schema.prisma`)
-- A dedicated background worker (BullMQ + Redis) for the overdue-adventure
-  escalation logic (added in a later step)
-- Twilio (SMS) + Resend/SendGrid (email) for notifications (added in a later
-  step)
+- A dedicated worker package using BullMQ + Redis for overdue-adventure
+  escalation (the state machine is implemented)
+- Durable masked notification records; external SMS/email delivery remains a
+  deployment follow-up and is documented in [`docs/deployment.md`](docs/deployment.md)
 
 ## Getting started
 
@@ -109,8 +111,8 @@ In a second terminal, run the worker:
 npm run worker:dev
 ```
 
-The worker currently logs each scheduled scan every 60 seconds. The overdue
-adventure state machine is added in the next step.
+The worker runs the overdue-adventure state machine every 60 seconds. It
+queues durable notification records; it does not yet send SMS/email.
 
 ### Authentication setup
 
@@ -142,6 +144,9 @@ npm run start   # run the production build
 npm run lint     # lint the codebase
 npm run worker:build  # compile the background worker
 ```
+
+See [`docs/deployment.md`](docs/deployment.md) for Vercel, Railway, managed
+Postgres/Redis, migration, worker, and safety configuration.
 
 ## Development tooling
 
