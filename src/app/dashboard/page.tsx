@@ -15,7 +15,7 @@ export default async function DashboardPage() {
   });
   const [contacts, adventures] = await Promise.all([
     prisma.emergencyContact.findMany({ where: { ownerUserId: user.id }, select: { id: true, name: true, isDefault: true }, orderBy: { name: "asc" } }),
-    prisma.adventure.findMany({ where: { userId: user.id }, select: { id: true, timezone: true, startAt: true, expectedReturnAt: true, status: true, hike: { select: { id: true, title: true } }, contacts: { select: { contact: { select: { id: true, name: true } } } } }, orderBy: { expectedReturnAt: "asc" } }),
+    prisma.adventure.findMany({ where: { userId: user.id }, select: { id: true, timezone: true, startAt: true, expectedReturnAt: true, status: true, hike: { select: { id: true, title: true } }, contacts: { select: { contact: { select: { id: true, name: true } } } }, events: { select: { id: true, type: true, createdAt: true }, orderBy: { createdAt: "asc" } } }, orderBy: { expectedReturnAt: "asc" } }),
   ]);
 
   return (
@@ -52,7 +52,7 @@ export default async function DashboardPage() {
           </div>
         </section>
         <HikesPanel initialHikes={hikes.map((hike) => ({ ...hike, createdAt: hike.createdAt.toISOString(), updatedAt: hike.updatedAt.toISOString() }))} />
-        <AdventuresPanel hikes={hikes.map((hike) => ({ id: hike.id, title: hike.title }))} contacts={contacts} initialAdventures={adventures.map((adventure) => ({ ...adventure, startAt: adventure.startAt.toISOString(), expectedReturnAt: adventure.expectedReturnAt.toISOString() }))} timezone={user.timezone} />
+        <AdventuresPanel hikes={hikes.map((hike) => ({ id: hike.id, title: hike.title }))} contacts={contacts} initialAdventures={adventures.map((adventure) => ({ ...adventure, startAt: adventure.startAt.toISOString(), expectedReturnAt: adventure.expectedReturnAt.toISOString(), events: adventure.events.map((event) => ({ ...event, createdAt: event.createdAt.toISOString() })) }))} timezone={user.timezone} />
       </div>
     </main>
   );

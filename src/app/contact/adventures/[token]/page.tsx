@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 
 import { prisma } from "@/lib/prisma";
+import { ContactCommentsPanel } from "@/app/contact/adventures/[token]/comments-panel";
 
 type ContactAdventurePageProps = { params: Promise<{ token: string }> };
 
@@ -21,6 +22,7 @@ export default async function ContactAdventurePage({ params }: ContactAdventureP
       contact: { select: { name: true } },
       adventure: {
         select: {
+          id: true,
           status: true,
           startAt: true,
           expectedReturnAt: true,
@@ -32,7 +34,7 @@ export default async function ContactAdventurePage({ params }: ContactAdventureP
     },
   });
 
-  if (!link || (link.accessTokenExpiresAt && link.accessTokenExpiresAt <= new Date())) {
+  if (!link || !link.accessTokenExpiresAt || link.accessTokenExpiresAt <= new Date()) {
     notFound();
   }
 
@@ -52,6 +54,7 @@ export default async function ContactAdventurePage({ params }: ContactAdventureP
             <div className="grid gap-1 py-3 sm:grid-cols-2"><dt className="text-sm text-slate-500">Status</dt><dd className="font-semibold uppercase text-emerald-700">{adventure.status}</dd></div>
           </dl>
           <p className="mt-6 rounded-xl bg-amber-50 px-4 py-3 text-sm text-amber-900">This page will show alert updates and coordination comments if the hiker does not check out.</p>
+          <ContactCommentsPanel token={token} initialComments={(await prisma.alertComment.findMany({ where: { adventureId: adventure.id }, select: { id: true, body: true, createdAt: true, authorUser: { select: { name: true } }, authorContact: { select: { name: true } } }, orderBy: { createdAt: "asc" } })).map((comment) => ({ ...comment, createdAt: comment.createdAt.toISOString() }))} />
         </div>
       </div>
     </main>

@@ -40,9 +40,9 @@ items as scope evolves.
       overdue → hiker pinged → acknowledge-and-extend (requires a new
       expected return time) or contacts alerted, with guarded transitions
       and `AlertEvent` / `NotificationLog` records.
-- [ ] **11. Alert comments + hiker dashboard** — Contacts can comment on
-      an alert; hiker dashboard listing active/past adventures with
-      status.
+- [x] **11. Alert comments + hiker dashboard** — Token-authorized contacts
+      and authenticated hikers can comment; dashboard lists adventure status
+      and the event timeline.
 - [ ] **12. Deployment config** — Env var docs, hosting config for the web
       app and the worker, managed Postgres/Redis, final README pass.
 
