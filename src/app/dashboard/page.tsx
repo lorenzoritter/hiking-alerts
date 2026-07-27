@@ -2,9 +2,21 @@ import Link from "next/link";
 
 import { logout } from "@/lib/auth/actions";
 import { requireUser } from "@/lib/auth/dal";
+import { prisma } from "@/lib/prisma";
+import { HikesPanel } from "@/app/dashboard/hikes-panel";
+import { AdventuresPanel } from "@/app/dashboard/adventures-panel";
 
 export default async function DashboardPage() {
   const user = await requireUser();
+  const hikes = await prisma.hike.findMany({
+    where: { userId: user.id },
+    select: { id: true, title: true, description: true, createdAt: true, updatedAt: true },
+    orderBy: { updatedAt: "desc" },
+  });
+  const [contacts, adventures] = await Promise.all([
+    prisma.emergencyContact.findMany({ where: { ownerUserId: user.id }, select: { id: true, name: true, isDefault: true }, orderBy: { name: "asc" } }),
+    prisma.adventure.findMany({ where: { userId: user.id }, select: { id: true, timezone: true, startAt: true, expectedReturnAt: true, status: true, hike: { select: { id: true, title: true } }, contacts: { select: { contact: { select: { id: true, name: true } } } } }, orderBy: { expectedReturnAt: "asc" } }),
+  ]);
 
   return (
     <main className="min-h-screen bg-slate-50 px-6 py-10">
@@ -39,6 +51,8 @@ export default async function DashboardPage() {
             <p className="mt-2 text-sm text-slate-600">Add the people who should receive an alert if you do not check out.</p>
           </div>
         </section>
+        <HikesPanel initialHikes={hikes.map((hike) => ({ ...hike, createdAt: hike.createdAt.toISOString(), updatedAt: hike.updatedAt.toISOString() }))} />
+        <AdventuresPanel hikes={hikes.map((hike) => ({ id: hike.id, title: hike.title }))} contacts={contacts} initialAdventures={adventures.map((adventure) => ({ ...adventure, startAt: adventure.startAt.toISOString(), expectedReturnAt: adventure.expectedReturnAt.toISOString() }))} timezone={user.timezone} />
       </div>
     </main>
   );

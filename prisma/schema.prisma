@@ -147,6 +147,7 @@ model AdventureContact {
   contact     EmergencyContact @relation(fields: [contactId], references: [id], onDelete: Cascade)
 
   accessToken String    @unique
+  accessTokenExpiresAt DateTime?
   notifiedAt  DateTime?
   createdAt   DateTime  @default(now())
 
@@ -198,6 +199,8 @@ model NotificationLog {
 
   channel      NotificationChannel
   recipient    String
+  purpose      String            @default("SHARE")
+  deliveryKey  String?           @unique
   status       NotificationStatus  @default(PENDING)
   errorMessage String?
   sentAt       DateTime?

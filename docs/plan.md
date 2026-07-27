@@ -22,19 +22,20 @@ items as scope evolves.
 - [x] **4. Emergency contacts CRUD** — Profile UI + owner-scoped API routes
       to add and remove contacts, validate notification channels, and
       maintain a default contact.
-- [ ] **5. Hike creation** — CRUD for free-text hikes (title/description),
-      list/detail views.
-- [ ] **6. Adventure creation** — Form to link a hike, set expected return
-      date/time + timezone, choose contacts (default or ad hoc), set
-      ping/alert grace periods; API routes + DB writes.
-- [ ] **7. Adventure sharing** — Generate signed per-contact tokens, send
-      SMS/email with a no-login link; build the contact-facing status page
-      (view adventure info + alert state).
-- [ ] **8. Checkout flow** — "Check out" action, updates adventure
-      status/timestamp; notifies contacts with a stand-down notice if it
-      happens after they were already alerted.
-- [ ] **9. Worker service scaffold** — Separate Node worker package,
-      BullMQ + Redis wiring, repeating job skeleton polling every 1–2 min.
+- [x] **5. Hike creation** — Owner-scoped CRUD APIs and dashboard UI for
+      free-text hikes (title/description).
+- [x] **6. Adventure creation** — Timezone-aware form and owner-scoped API
+      route to link a hike, choose contacts, set expected return time, and
+      configure ping/contact grace periods.
+- [x] **7. Adventure sharing** — Generate expiring opaque per-contact bearer
+      tokens, queue masked notification records, provide share links, and add the
+      no-login contact-facing status page.
+- [x] **8. Checkout flow** — Guarded transactional checkout endpoint and
+      dashboard action, audit events, and durable queued late stand-down
+      notifications after contacts were alerted.
+- [x] **9. Worker service scaffold** — Separate Node worker package,
+      BullMQ + Redis wiring, graceful shutdown, and a repeating 60-second
+      scan skeleton.
 - [ ] **10. Escalation logic** — Implement the state machine in the
       worker: overdue → hiker pinged → (acknowledge-and-extend, which
       requires the hiker to submit a new expected return time) or →
