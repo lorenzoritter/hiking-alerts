@@ -49,6 +49,16 @@ items as scope evolves.
 
 ## Phase 2 — Quality of life
 
+- [ ] Adventure form layout — align the hike selector with the other
+      adventure fields and give it a clear `Hike` label.
+- [ ] Adventure date/time UX — make departure optional, present dates in a
+      consistent human-readable format such as `15 Aug 2026, 22:30`, and
+      provide a reliable date-and-time picker across browsers instead of
+      relying on inconsistent native `datetime-local` rendering.
+- [ ] Emergency contact channel copy — clarify that at least one phone or
+      email channel is currently required, or change validation if contacts
+      without a notification channel should be allowed; labels and errors
+      must match the chosen rule.
 - [ ] Extend/edit expected return time while active (if hiker has signal).
 - [ ] Reminder notification before deadline (e.g. "1 hour left, don't
       forget to check out").
