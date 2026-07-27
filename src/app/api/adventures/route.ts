@@ -98,7 +98,13 @@ export async function POST(request: Request) {
       expectedReturnAt,
       pingGraceMinutes: data.pingGraceMinutes,
       alertGraceMinutes: data.alertGraceMinutes,
-      contacts: { create: data.contactIds.map((contactId) => ({ contactId, accessToken: crypto.randomUUID() })) },
+      contacts: {
+        create: data.contactIds.map((contactId) => ({
+          contactId,
+          accessToken: crypto.randomUUID(),
+          accessTokenExpiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+        })),
+      },
     },
     select: {
       id: true,

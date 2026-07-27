@@ -27,9 +27,9 @@ items as scope evolves.
 - [x] **6. Adventure creation** — Timezone-aware form and owner-scoped API
       route to link a hike, choose contacts, set expected return time, and
       configure ping/contact grace periods.
-- [ ] **7. Adventure sharing** — Generate signed per-contact tokens, send
-      SMS/email with a no-login link; build the contact-facing status page
-      (view adventure info + alert state).
+- [x] **7. Adventure sharing** — Generate expiring opaque per-contact bearer
+      tokens, queue masked notification records, provide share links, and add the
+      no-login contact-facing status page.
 - [ ] **8. Checkout flow** — "Check out" action, updates adventure
       status/timestamp; notifies contacts with a stand-down notice if it
       happens after they were already alerted.
