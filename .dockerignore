@@ -1,0 +1,9 @@
+node_modules
+.next
+worker/dist
+src/generated/prisma
+.env*
+.git
+.gitignore
+README.md
+docs

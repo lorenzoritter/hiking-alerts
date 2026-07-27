@@ -43,8 +43,9 @@ items as scope evolves.
 - [x] **11. Alert comments + hiker dashboard** — Token-authorized contacts
       and authenticated hikers can comment; dashboard lists adventure status
       and the event timeline.
-- [ ] **12. Deployment config** — Env var docs, hosting config for the web
-      app and the worker, managed Postgres/Redis, final README pass.
+- [x] **12. Deployment config** — Environment and safety docs, Vercel and
+      Railway/Docker configuration, managed Postgres/Redis deployment notes,
+      worker runtime instructions, and final README pass.
 
 ## Phase 2 — Quality of life
 

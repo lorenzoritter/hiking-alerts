@@ -5,7 +5,7 @@
   "workspaces": ["worker"],
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "next build --webpack",
     "start": "next start",
     "lint": "eslint src worker/src",
     "postinstall": "prisma generate",
@@ -14,7 +14,7 @@
     "db:migrate:deploy": "prisma migrate deploy",
     "db:studio": "prisma studio",
     "worker:dev": "tsx worker/src/index.ts",
-    "worker:build": "prisma generate && tsc -p worker/tsconfig.json",
+    "worker:build": "prisma generate && tsc -p worker/tsconfig.json && node worker/scripts/fix-generated-imports.mjs",
     "worker:start": "node worker/dist/worker/src/index.js",
     "test": "tsx --test \"src/**/*.test.ts\" \"worker/src/**/*.test.ts\""
   },
