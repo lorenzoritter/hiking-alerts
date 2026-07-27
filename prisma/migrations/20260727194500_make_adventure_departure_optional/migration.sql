@@ -1,0 +1,1 @@
+ALTER TABLE "adventures" ALTER COLUMN "startAt" DROP NOT NULL;

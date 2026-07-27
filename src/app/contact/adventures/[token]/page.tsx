@@ -49,7 +49,7 @@ export default async function ContactAdventurePage({ params }: ContactAdventureP
           <p className="mt-4 whitespace-pre-wrap text-slate-600">{adventure.hike.description}</p>
           <dl className="mt-8 divide-y divide-slate-100">
             <div className="grid gap-1 py-3 sm:grid-cols-2"><dt className="text-sm text-slate-500">Hiker</dt><dd className="font-medium">{adventure.user.name}</dd></div>
-            <div className="grid gap-1 py-3 sm:grid-cols-2"><dt className="text-sm text-slate-500">Start</dt><dd className="font-medium">{formatInTimeZone(adventure.startAt, adventure.timezone)} ({adventure.timezone})</dd></div>
+            {adventure.startAt && <div className="grid gap-1 py-3 sm:grid-cols-2"><dt className="text-sm text-slate-500">Start</dt><dd className="font-medium">{formatInTimeZone(adventure.startAt, adventure.timezone)} ({adventure.timezone})</dd></div>}
             <div className="grid gap-1 py-3 sm:grid-cols-2"><dt className="text-sm text-slate-500">Expected return</dt><dd className="font-medium">{formatInTimeZone(adventure.expectedReturnAt, adventure.timezone)} ({adventure.timezone})</dd></div>
             <div className="grid gap-1 py-3 sm:grid-cols-2"><dt className="text-sm text-slate-500">Status</dt><dd className="font-semibold uppercase text-emerald-700">{adventure.status}</dd></div>
           </dl>

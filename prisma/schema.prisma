@@ -111,7 +111,7 @@ model Adventure {
   // expressed in.
   timezone String
 
-  startAt          DateTime
+  startAt          DateTime?
   expectedReturnAt DateTime
 
   // How long after `expectedReturnAt` before the hiker is pinged, and how
