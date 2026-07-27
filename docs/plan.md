@@ -55,7 +55,7 @@ items as scope evolves.
       consistent human-readable format such as `15 Aug 2026, 22:30`, and
       provide a reliable date-and-time picker across browsers instead of
       relying on inconsistent native `datetime-local` rendering.
-- [ ] Emergency contact channel copy — clarify that at least one phone or
+- [x] Emergency contact channel copy — clarify that at least one phone or
       email channel is currently required, or change validation if contacts
       without a notification channel should be allowed; labels and errors
       must match the chosen rule.

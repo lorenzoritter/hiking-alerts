@@ -80,8 +80,9 @@ export function ContactsPanel({ initialContacts }: ContactsPanelProps) {
       </div>
       <form className="mt-7 grid gap-4 border-t border-slate-100 pt-6 sm:grid-cols-2" onSubmit={addContact}>
         <input className="rounded-xl border border-slate-300 px-4 py-3 text-slate-950" placeholder="Name" value={form.name} onChange={(event) => setForm({ ...form, name: event.target.value })} required />
-        <input className="rounded-xl border border-slate-300 px-4 py-3 text-slate-950" placeholder="Phone (optional)" type="tel" value={form.phone} onChange={(event) => setForm({ ...form, phone: event.target.value })} />
-        <input className="rounded-xl border border-slate-300 px-4 py-3 text-slate-950" placeholder="Email (optional)" type="email" value={form.email} onChange={(event) => setForm({ ...form, email: event.target.value })} />
+        <p className="text-sm text-slate-600 sm:col-span-2">Add at least one way to reach this contact: phone or email.</p>
+        <input aria-label="Phone number (optional if email is provided)" className="rounded-xl border border-slate-300 px-4 py-3 text-slate-950" placeholder="Phone number" type="tel" value={form.phone} onChange={(event) => setForm({ ...form, phone: event.target.value })} />
+        <input aria-label="Email address (optional if phone is provided)" className="rounded-xl border border-slate-300 px-4 py-3 text-slate-950" placeholder="Email address" type="email" value={form.email} onChange={(event) => setForm({ ...form, email: event.target.value })} />
         <label className="flex items-center gap-2 text-sm text-slate-700"><input checked={form.isDefault} onChange={(event) => setForm({ ...form, isDefault: event.target.checked })} type="checkbox" /> Make default contact</label>
         <button className="rounded-xl bg-emerald-700 px-4 py-3 font-semibold text-white hover:bg-emerald-800 disabled:opacity-60 sm:col-span-2" disabled={pending} type="submit">{pending ? "Adding..." : "Add emergency contact"}</button>
       </form>
