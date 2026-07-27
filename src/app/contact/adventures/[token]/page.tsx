@@ -27,7 +27,7 @@ export default async function ContactAdventurePage({ params }: ContactAdventureP
           startAt: true,
           expectedReturnAt: true,
           timezone: true,
-          hike: { select: { title: true, description: true } },
+          hike: { select: { title: true, description: true, location: true } },
           user: { select: { name: true } },
         },
       },
@@ -46,7 +46,8 @@ export default async function ContactAdventurePage({ params }: ContactAdventureP
         <div className="mt-8 rounded-2xl bg-white p-7 text-slate-950 shadow-xl">
           <p className="text-sm font-semibold text-emerald-700">Shared adventure for {link.contact.name}</p>
           <h1 className="mt-3 text-3xl font-semibold tracking-tight">{adventure.hike.title}</h1>
-          <p className="mt-4 whitespace-pre-wrap text-slate-600">{adventure.hike.description}</p>
+           <p className="mt-4 whitespace-pre-wrap text-slate-600">{adventure.hike.description}</p>
+           {adventure.hike.location && <p className="mt-3 font-medium text-emerald-700"><span className="font-semibold">Location:</span> {adventure.hike.location}</p>}
           <dl className="mt-8 divide-y divide-slate-100">
             <div className="grid gap-1 py-3 sm:grid-cols-2"><dt className="text-sm text-slate-500">Hiker</dt><dd className="font-medium">{adventure.user.name}</dd></div>
             {adventure.startAt && <div className="grid gap-1 py-3 sm:grid-cols-2"><dt className="text-sm text-slate-500">Start</dt><dd className="font-medium">{formatInTimeZone(adventure.startAt, adventure.timezone)} ({adventure.timezone})</dd></div>}

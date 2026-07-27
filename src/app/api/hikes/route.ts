@@ -13,7 +13,7 @@ export async function GET() {
 
   const hikes = await prisma.hike.findMany({
     where: { userId: user.id },
-    select: { id: true, title: true, description: true, createdAt: true, updatedAt: true },
+    select: { id: true, title: true, description: true, location: true, createdAt: true, updatedAt: true },
     orderBy: { updatedAt: "desc" },
   });
 
@@ -44,7 +44,7 @@ export async function POST(request: Request) {
 
   const hike = await prisma.hike.create({
     data: { ...parsed.data, userId: user.id },
-    select: { id: true, title: true, description: true, createdAt: true, updatedAt: true },
+    select: { id: true, title: true, description: true, location: true, createdAt: true, updatedAt: true },
   });
 
   return NextResponse.json({ hike }, { status: 201 });

@@ -6,6 +6,7 @@ type Hike = {
   id: string;
   title: string;
   description: string;
+  location: string | null;
   createdAt: string;
   updatedAt: string;
 };
@@ -14,7 +15,7 @@ type HikesPanelProps = { initialHikes: Hike[] };
 
 export function HikesPanel({ initialHikes }: HikesPanelProps) {
   const [hikes, setHikes] = useState(initialHikes);
-  const [form, setForm] = useState({ title: "", description: "" });
+  const [form, setForm] = useState({ title: "", description: "", location: "" });
   const [editingId, setEditingId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
@@ -36,10 +37,10 @@ export function HikesPanel({ initialHikes }: HikesPanelProps) {
     } else if (editingId) {
       setHikes((current) => current.map((hike) => (hike.id === editingId ? body.hike : hike)));
       setEditingId(null);
-      setForm({ title: "", description: "" });
+      setForm({ title: "", description: "", location: "" });
     } else {
       setHikes((current) => [body.hike, ...current]);
-      setForm({ title: "", description: "" });
+      setForm({ title: "", description: "", location: "" });
     }
     setPending(false);
   }
@@ -57,7 +58,7 @@ export function HikesPanel({ initialHikes }: HikesPanelProps) {
 
   function beginEdit(hike: Hike) {
     setEditingId(hike.id);
-    setForm({ title: hike.title, description: hike.description });
+    setForm({ title: hike.title, description: hike.description, location: hike.location ?? "" });
   }
 
   return (
@@ -70,7 +71,7 @@ export function HikesPanel({ initialHikes }: HikesPanelProps) {
         {hikes.map((hike) => (
           <article className="rounded-xl border border-slate-200 p-4" key={hike.id}>
             <div className="flex items-start justify-between gap-4">
-              <div><h3 className="font-semibold text-slate-950">{hike.title}</h3><p className="mt-1 whitespace-pre-wrap text-sm text-slate-600">{hike.description}</p></div>
+               <div><h3 className="font-semibold text-slate-950">{hike.title}</h3>{hike.location && <p className="mt-1 text-sm font-medium text-emerald-700">{hike.location}</p>}<p className="mt-1 whitespace-pre-wrap text-sm text-slate-600">{hike.description}</p></div>
               <div className="flex shrink-0 gap-3 text-sm font-semibold"><button className="text-emerald-700 hover:text-emerald-800" onClick={() => beginEdit(hike)} type="button">Edit</button><button className="text-red-700 hover:text-red-800" onClick={() => deleteHike(hike.id)} type="button">Delete</button></div>
             </div>
           </article>
@@ -78,8 +79,9 @@ export function HikesPanel({ initialHikes }: HikesPanelProps) {
       </div>
       <form className="mt-7 space-y-4 border-t border-slate-100 pt-6" onSubmit={saveHike}>
         <input className="block w-full rounded-xl border border-slate-300 px-4 py-3 text-slate-950" placeholder="Hike title" value={form.title} onChange={(event) => setForm({ ...form, title: event.target.value })} required />
-        <textarea className="block min-h-32 w-full rounded-xl border border-slate-300 px-4 py-3 text-slate-950" placeholder="Describe the route, terrain, and anything your contacts should know." value={form.description} onChange={(event) => setForm({ ...form, description: event.target.value })} required />
-        <div className="flex gap-3"><button className="rounded-xl bg-emerald-700 px-4 py-3 font-semibold text-white hover:bg-emerald-800 disabled:opacity-60" disabled={pending} type="submit">{pending ? "Saving..." : editingId ? "Update hike" : "Save hike"}</button>{editingId && <button className="rounded-xl border border-slate-300 px-4 py-3 font-semibold text-slate-700" onClick={() => { setEditingId(null); setForm({ title: "", description: "" }); }} type="button">Cancel</button>}</div>
+         <textarea className="block min-h-32 w-full rounded-xl border border-slate-300 px-4 py-3 text-slate-950" placeholder="Describe the route, terrain, and anything your contacts should know." value={form.description} onChange={(event) => setForm({ ...form, description: event.target.value })} required />
+         <label className="block text-sm font-medium text-slate-700">Trailhead or park name <span className="font-normal text-slate-500">(optional)</span><input aria-label="Trailhead or park name (optional)" className="mt-2 block w-full rounded-xl border border-slate-300 px-4 py-3 font-normal text-slate-950" placeholder="e.g. Snowdon Pen-y-Pass car park" value={form.location} onChange={(event) => setForm({ ...form, location: event.target.value })} maxLength={200} /></label>
+         <div className="flex gap-3"><button className="rounded-xl bg-emerald-700 px-4 py-3 font-semibold text-white hover:bg-emerald-800 disabled:opacity-60" disabled={pending} type="submit">{pending ? "Saving..." : editingId ? "Update hike" : "Save hike"}</button>{editingId && <button className="rounded-xl border border-slate-300 px-4 py-3 font-semibold text-slate-700" onClick={() => { setEditingId(null); setForm({ title: "", description: "", location: "" }); }} type="button">Cancel</button>}</div>
       </form>
       {error && <p className="mt-4 text-sm text-red-700">{error}</p>}
     </section>

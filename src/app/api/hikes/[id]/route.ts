@@ -39,7 +39,7 @@ export async function PATCH(request: Request, context: HikeRouteContext) {
 
   const hike = await prisma.hike.findUniqueOrThrow({
     where: { id },
-    select: { id: true, title: true, description: true, createdAt: true, updatedAt: true },
+     select: { id: true, title: true, description: true, location: true, createdAt: true, updatedAt: true },
   });
 
   return NextResponse.json({ hike });

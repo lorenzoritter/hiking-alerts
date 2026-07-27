@@ -10,7 +10,7 @@ export default async function DashboardPage() {
   const user = await requireUser();
   const hikes = await prisma.hike.findMany({
     where: { userId: user.id },
-    select: { id: true, title: true, description: true, createdAt: true, updatedAt: true },
+    select: { id: true, title: true, description: true, location: true, createdAt: true, updatedAt: true },
     orderBy: { updatedAt: "desc" },
   });
   const [contacts, adventures] = await Promise.all([
