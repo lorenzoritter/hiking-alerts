@@ -59,7 +59,7 @@ items as scope evolves.
       email channel is currently required, or change validation if contacts
       without a notification channel should be allowed; labels and errors
       must match the chosen rule.
-- [ ] Extend/edit expected return time while active (if hiker has signal).
+- [x] Extend/edit expected return time while active (if hiker has signal).
 - [ ] Reminder notification before deadline (e.g. "1 hour left, don't
       forget to check out").
 - [ ] Structured location field (trailhead/park name) even without full

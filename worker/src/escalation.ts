@@ -23,7 +23,7 @@ export async function scanOverdueAdventures(now = new Date()) {
     if (transition?.status === "HIKER_PINGED") {
       const transitioned = await prisma.$transaction(async (transaction) => {
         const result = await transaction.adventure.updateMany({
-          where: { id: adventure.id, status: "ACTIVE" },
+          where: { id: adventure.id, status: "ACTIVE", expectedReturnAt: adventure.expectedReturnAt },
           data: { status: "HIKER_PINGED" },
         });
         if (result.count !== 1) return false;
