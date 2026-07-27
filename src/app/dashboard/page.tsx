@@ -2,9 +2,16 @@ import Link from "next/link";
 
 import { logout } from "@/lib/auth/actions";
 import { requireUser } from "@/lib/auth/dal";
+import { prisma } from "@/lib/prisma";
+import { HikesPanel } from "@/app/dashboard/hikes-panel";
 
 export default async function DashboardPage() {
   const user = await requireUser();
+  const hikes = await prisma.hike.findMany({
+    where: { userId: user.id },
+    select: { id: true, title: true, description: true, createdAt: true, updatedAt: true },
+    orderBy: { updatedAt: "desc" },
+  });
 
   return (
     <main className="min-h-screen bg-slate-50 px-6 py-10">
@@ -39,6 +46,7 @@ export default async function DashboardPage() {
             <p className="mt-2 text-sm text-slate-600">Add the people who should receive an alert if you do not check out.</p>
           </div>
         </section>
+        <HikesPanel initialHikes={hikes.map((hike) => ({ ...hike, createdAt: hike.createdAt.toISOString(), updatedAt: hike.updatedAt.toISOString() }))} />
       </div>
     </main>
   );
