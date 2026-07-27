@@ -60,7 +60,7 @@ export async function POST(request: Request) {
 
   const startAt = data.startAtLocal ? parseLocalDateTime(data.startAtLocal, data.timezone) : null;
   const expectedReturnAt = parseLocalDateTime(data.expectedReturnAtLocal, data.timezone);
-  if (!expectedReturnAt) {
+  if (!expectedReturnAt || (data.startAtLocal && !startAt)) {
     return NextResponse.json({ error: "Invalid date or time" }, { status: 400 });
   }
   if (startAt && startAt >= expectedReturnAt) {

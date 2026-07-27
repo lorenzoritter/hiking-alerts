@@ -31,7 +31,7 @@ function dateTimeParts(offsetHours: number) {
 
 function formatPreview(date: string, time: string) {
   if (!date || !time) return "Not set";
-  return new Intl.DateTimeFormat("en-GB", { day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit", hour12: false }).format(new Date(`${date}T${time}:00`));
+  return new Intl.DateTimeFormat("en-GB", { day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit", hour12: false, timeZone: "UTC" }).format(new Date(`${date}T${time}:00Z`));
 }
 
 export function AdventuresPanel({ hikes, contacts, initialAdventures, timezone }: AdventuresPanelProps) {
