@@ -52,7 +52,7 @@ export default async function DashboardPage() {
           </div>
         </section>
         <HikesPanel initialHikes={hikes.map((hike) => ({ ...hike, createdAt: hike.createdAt.toISOString(), updatedAt: hike.updatedAt.toISOString() }))} />
-        <AdventuresPanel hikes={hikes.map((hike) => ({ id: hike.id, title: hike.title }))} contacts={contacts} initialAdventures={adventures.map((adventure) => ({ ...adventure, startAt: adventure.startAt.toISOString(), expectedReturnAt: adventure.expectedReturnAt.toISOString(), events: adventure.events.map((event) => ({ ...event, createdAt: event.createdAt.toISOString() })) }))} timezone={user.timezone} />
+        <AdventuresPanel hikes={hikes.map((hike) => ({ id: hike.id, title: hike.title }))} contacts={contacts} initialAdventures={adventures.map((adventure) => ({ ...adventure, startAt: adventure.startAt?.toISOString() ?? null, expectedReturnAt: adventure.expectedReturnAt.toISOString(), events: adventure.events.map((event) => ({ ...event, createdAt: event.createdAt.toISOString() })) }))} timezone={user.timezone} />
       </div>
     </main>
   );

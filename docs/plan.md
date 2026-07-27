@@ -49,7 +49,7 @@ items as scope evolves.
 
 ## Phase 2 — Quality of life
 
-- [ ] Adventure form layout — align the hike selector with the other
+- [x] Adventure form layout — align the hike selector with the other
       adventure fields and give it a clear `Hike` label.
 - [ ] Adventure date/time UX — make departure optional, present dates in a
       consistent human-readable format such as `15 Aug 2026, 22:30`, and
