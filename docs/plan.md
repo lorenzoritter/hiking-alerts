@@ -60,8 +60,8 @@ items as scope evolves.
       without a notification channel should be allowed; labels and errors
       must match the chosen rule.
 - [x] Extend/edit expected return time while active (if hiker has signal).
-- [ ] Reminder notification before deadline (e.g. "1 hour left, don't
-      forget to check out").
+- [x] Reminder notification before deadline (default: 1 hour before return;
+      queued once per adventure).
 - [ ] Structured location field (trailhead/park name) even without full
       mapping.
 - [ ] Notification delivery status/retries visible to the user.

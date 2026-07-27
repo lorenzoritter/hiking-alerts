@@ -1,6 +1,6 @@
 import { buildNotificationRecords } from "./notifications.js";
 import { prisma } from "./prisma.js";
-import { getEscalationTransition } from "./state.js";
+import { getEscalationTransition, isReminderDue } from "./state.js";
 
 export async function scanOverdueAdventures(now = new Date()) {
   const adventures = await prisma.adventure.findMany({
@@ -17,9 +17,20 @@ export async function scanOverdueAdventures(now = new Date()) {
   });
   let hikerPings = 0;
   let contactAlerts = 0;
+  let reminders = 0;
+  const reminderMinutes = Number(process.env.REMINDER_MINUTES ?? 60);
 
   for (const adventure of adventures) {
     const transition = getEscalationTransition(adventure, now);
+    if (adventure.status === "ACTIVE" && isReminderDue(adventure.expectedReturnAt, now, reminderMinutes)) {
+      const queued = await prisma.$transaction(async (transaction) => {
+        const records = buildNotificationRecords([{ adventureId: adventure.id, phone: adventure.user.phone, email: adventure.user.email }], "REMINDER");
+        if (records.length === 0) return false;
+        const result = await transaction.notificationLog.createMany({ data: records, skipDuplicates: true });
+        return result.count > 0;
+      });
+      if (queued) reminders += 1;
+    }
     if (transition?.status === "HIKER_PINGED") {
       const transitioned = await prisma.$transaction(async (transaction) => {
         const result = await transaction.adventure.updateMany({
@@ -51,5 +62,5 @@ export async function scanOverdueAdventures(now = new Date()) {
     }
   }
 
-  return { scanned: adventures.length, hikerPings, contactAlerts };
+  return { scanned: adventures.length, reminders, hikerPings, contactAlerts };
 }

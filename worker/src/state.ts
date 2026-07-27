@@ -13,3 +13,8 @@ export function getEscalationTransition(input: EscalationInput, now: Date) {
   if (input.status === "HIKER_PINGED" && now >= alertAt) return { status: "CONTACTS_ALERTED" as const, effectiveDeadline: alertAt };
   return null;
 }
+
+export function isReminderDue(expectedReturnAt: Date, now: Date, reminderMinutes = 60) {
+  const reminderAt = new Date(expectedReturnAt.getTime() - reminderMinutes * 60_000);
+  return now >= reminderAt && now < expectedReturnAt;
+}

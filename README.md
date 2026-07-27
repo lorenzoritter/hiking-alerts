@@ -113,6 +113,8 @@ npm run worker:dev
 
 The worker runs the overdue-adventure state machine every 60 seconds. It
 queues durable notification records; it does not yet send SMS/email.
+It also queues one hiker reminder during the default 60-minute window before
+the expected return time.
 
 ### Authentication setup
 
