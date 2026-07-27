@@ -40,15 +40,15 @@ export default async function ContactAdventurePage({ params }: ContactAdventureP
 
   const adventure = link.adventure;
   return (
-    <main className="min-h-screen bg-slate-950 px-6 py-10 text-white">
+    <main className="min-h-screen bg-slate-950 px-4 py-6 text-white sm:px-6 sm:py-10">
       <div className="mx-auto max-w-2xl">
         <p className="text-sm font-semibold uppercase tracking-[0.2em] text-emerald-300">Hiking Alerts</p>
-        <div className="mt-8 rounded-2xl bg-white p-7 text-slate-950 shadow-xl">
+        <div className="mt-6 rounded-2xl bg-white p-5 text-slate-950 shadow-xl sm:mt-8 sm:p-7">
           <p className="text-sm font-semibold text-emerald-700">Shared adventure for {link.contact.name}</p>
-          <h1 className="mt-3 text-3xl font-semibold tracking-tight">{adventure.hike.title}</h1>
+            <h1 className="mt-3 break-words text-3xl font-semibold tracking-tight">{adventure.hike.title}</h1>
           <p className="mt-4 whitespace-pre-wrap text-slate-600">{adventure.hike.description}</p>
           <dl className="mt-8 divide-y divide-slate-100">
-            <div className="grid gap-1 py-3 sm:grid-cols-2"><dt className="text-sm text-slate-500">Hiker</dt><dd className="font-medium">{adventure.user.name}</dd></div>
+            <div className="grid gap-1 py-3 sm:grid-cols-2"><dt className="text-sm text-slate-500">Hiker</dt><dd className="break-words font-medium">{adventure.user.name}</dd></div>
             {adventure.startAt && <div className="grid gap-1 py-3 sm:grid-cols-2"><dt className="text-sm text-slate-500">Start</dt><dd className="font-medium">{formatInTimeZone(adventure.startAt, adventure.timezone)} ({adventure.timezone})</dd></div>}
             <div className="grid gap-1 py-3 sm:grid-cols-2"><dt className="text-sm text-slate-500">Expected return</dt><dd className="font-medium">{formatInTimeZone(adventure.expectedReturnAt, adventure.timezone)} ({adventure.timezone})</dd></div>
             <div className="grid gap-1 py-3 sm:grid-cols-2"><dt className="text-sm text-slate-500">Status</dt><dd className="font-semibold uppercase text-emerald-700">{adventure.status}</dd></div>

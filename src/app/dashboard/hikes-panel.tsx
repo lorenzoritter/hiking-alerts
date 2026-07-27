@@ -61,7 +61,7 @@ export function HikesPanel({ initialHikes }: HikesPanelProps) {
   }
 
   return (
-    <section className="mt-8 rounded-2xl border border-slate-200 bg-white p-7 shadow-sm">
+    <section className="mt-8 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:p-7">
       <p className="text-sm font-semibold uppercase tracking-[0.2em] text-emerald-700">Your plans</p>
       <h2 className="mt-3 text-2xl font-semibold tracking-tight text-slate-950">Hikes</h2>
       <p className="mt-2 text-sm text-slate-600">Keep simple text descriptions ready to share as adventures.</p>
@@ -69,9 +69,9 @@ export function HikesPanel({ initialHikes }: HikesPanelProps) {
         {hikes.length === 0 && <p className="rounded-xl bg-slate-50 px-4 py-3 text-sm text-slate-600">No hikes planned yet.</p>}
         {hikes.map((hike) => (
           <article className="rounded-xl border border-slate-200 p-4" key={hike.id}>
-            <div className="flex items-start justify-between gap-4">
-              <div><h3 className="font-semibold text-slate-950">{hike.title}</h3><p className="mt-1 whitespace-pre-wrap text-sm text-slate-600">{hike.description}</p></div>
-              <div className="flex shrink-0 gap-3 text-sm font-semibold"><button className="text-emerald-700 hover:text-emerald-800" onClick={() => beginEdit(hike)} type="button">Edit</button><button className="text-red-700 hover:text-red-800" onClick={() => deleteHike(hike.id)} type="button">Delete</button></div>
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+              <div className="min-w-0"><h3 className="break-words font-semibold text-slate-950">{hike.title}</h3><p className="mt-1 whitespace-pre-wrap break-words text-sm text-slate-600">{hike.description}</p></div>
+              <div className="flex gap-4 text-sm font-semibold sm:shrink-0"><button className="text-emerald-700 hover:text-emerald-800" onClick={() => beginEdit(hike)} type="button">Edit</button><button className="text-red-700 hover:text-red-800" onClick={() => deleteHike(hike.id)} type="button">Delete</button></div>
             </div>
           </article>
         ))}

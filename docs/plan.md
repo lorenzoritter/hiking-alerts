@@ -65,6 +65,7 @@ items as scope evolves.
 - [ ] Structured location field (trailhead/park name) even without full
       mapping.
 - [ ] Notification delivery status/retries visible to the user.
+- [ ] Responsive mobile layout across dashboard, forms, sharing, and contact views.
 
 ## Phase 3 — Richer planning & sharing
 

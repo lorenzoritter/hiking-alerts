@@ -67,17 +67,17 @@ export function ContactsPanel({ initialContacts }: ContactsPanelProps) {
   }
 
   return (
-    <section className="mt-8 rounded-2xl border border-slate-200 bg-white p-7 shadow-sm">
+    <section className="mt-8 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:p-7">
       <p className="text-sm font-semibold uppercase tracking-[0.2em] text-emerald-700">Safety network</p>
       <h2 className="mt-3 text-2xl font-semibold tracking-tight text-slate-950">Emergency contacts</h2>
       <p className="mt-2 text-sm text-slate-600">These people can be selected when you share an adventure.</p>
       <div className="mt-6 space-y-3">
         {contacts.length === 0 && <p className="rounded-xl bg-slate-50 px-4 py-3 text-sm text-slate-600">No contacts added yet.</p>}
         {contacts.map((contact) => (
-          <div className="flex items-center justify-between gap-4 rounded-xl border border-slate-200 px-4 py-3" key={contact.id}>
-            <div>
+          <div className="flex flex-col items-start gap-3 rounded-xl border border-slate-200 px-4 py-3 sm:flex-row sm:items-center sm:justify-between" key={contact.id}>
+            <div className="min-w-0">
               <p className="font-semibold text-slate-950">{contact.name}{contact.isDefault && <span className="ml-2 text-xs font-medium text-emerald-700">Default</span>}</p>
-              <p className="text-sm text-slate-500">{contact.phone ?? contact.email}</p>
+              <p className="break-all text-sm text-slate-500">{contact.phone ?? contact.email}</p>
             </div>
             <button className="text-sm font-semibold text-red-700 hover:text-red-800" onClick={() => removeContact(contact.id)} type="button">Remove</button>
           </div>
