@@ -2,15 +2,17 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { formatInTimeZone } from "date-fns-tz";
 
-function localParts(value: string) {
+function localParts(value: string, timezone: string) {
   const date = new Date(value);
-  const pad = (number: number) => String(number).padStart(2, "0");
-  return { date: `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`, time: `${pad(date.getHours())}:${pad(date.getMinutes())}` };
+  const local = formatInTimeZone(date, timezone, "yyyy-MM-dd'T'HH:mm");
+  const [datePart, timePart] = local.split("T");
+  return { date: datePart, time: timePart };
 }
 
 export function ExtendReturnTimeForm({ adventureId, hikeTitle, timezone, currentExpectedReturnAt }: { adventureId: string; hikeTitle: string; timezone: string; currentExpectedReturnAt: string }) {
-  const current = localParts(currentExpectedReturnAt);
+  const current = localParts(currentExpectedReturnAt, timezone);
   const [date, setDate] = useState(current.date);
   const [time, setTime] = useState(current.time);
   const [message, setMessage] = useState<string | null>(null);

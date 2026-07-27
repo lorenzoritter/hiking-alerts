@@ -18,7 +18,7 @@ export async function POST(request: Request, context: ExtendRouteContext) {
   const adventure = await prisma.adventure.findFirst({ where: { id, userId: user.id, status: "ACTIVE" }, select: { timezone: true, expectedReturnAt: true } });
   if (!adventure) return NextResponse.json({ error: "Only active adventures can be extended" }, { status: 409 });
   const newExpectedReturnAt = parseLocalDateTime(expectedReturnAtLocal, adventure.timezone);
-  if (!newExpectedReturnAt || newExpectedReturnAt <= adventure.expectedReturnAt) return NextResponse.json({ error: "New return time must be later than the current return time" }, { status: 400 });
+  if (!newExpectedReturnAt || newExpectedReturnAt <= adventure.expectedReturnAt || newExpectedReturnAt <= new Date()) return NextResponse.json({ error: "New return time must be later than the current return time and now" }, { status: 400 });
 
   const updated = await prisma.$transaction(async (transaction) => {
     const result = await transaction.adventure.updateMany({ where: { id, userId: user.id, status: "ACTIVE", expectedReturnAt: adventure.expectedReturnAt }, data: { expectedReturnAt: newExpectedReturnAt } });
