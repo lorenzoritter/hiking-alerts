@@ -45,6 +45,11 @@ export async function POST(request: Request, context: ShareRouteContext) {
     url: `${origin}/contact/adventures/${link.accessToken}`,
   }));
   await queueShareNotifications(recipients);
+  const notifications = await prisma.notificationLog.findMany({
+    where: { adventureId: id, purpose: "SHARE" },
+    select: { id: true, channel: true, recipient: true, status: true, errorMessage: true, sentAt: true, createdAt: true },
+    orderBy: { createdAt: "desc" },
+  });
 
   return NextResponse.json({
     links: recipients.map(({ name, phone, email, url }, index) => ({
@@ -55,5 +60,6 @@ export async function POST(request: Request, context: ShareRouteContext) {
       expiresAt: adventure.contacts[index]?.accessTokenExpiresAt,
     })),
     notificationStatus: "queued",
+    notifications,
   });
 }
