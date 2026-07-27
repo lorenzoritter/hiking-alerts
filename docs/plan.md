@@ -19,8 +19,9 @@ items as scope evolves.
 - [x] **3. Auth** — Sign up / log in, encrypted cookie session handling,
       server-side session verification, protected dashboard/profile pages,
       and logout.
-- [ ] **4. Emergency contacts CRUD** — Profile UI + API routes to add,
-      edit, and remove default emergency contacts.
+- [x] **4. Emergency contacts CRUD** — Profile UI + owner-scoped API routes
+      to add and remove contacts, validate notification channels, and
+      maintain a default contact.
 - [ ] **5. Hike creation** — CRUD for free-text hikes (title/description),
       list/detail views.
 - [ ] **6. Adventure creation** — Form to link a hike, set expected return
