@@ -12,6 +12,7 @@ type Adventure = {
   status: string;
   hike: Hike;
   contacts: { contact: { id: string; name: string } }[];
+  events: { id: string; type: string; createdAt: string }[];
 };
 
 type AdventuresPanelProps = { hikes: Hike[]; contacts: Contact[]; initialAdventures: Adventure[]; timezone: string };
@@ -45,7 +46,7 @@ export function AdventuresPanel({ hikes, contacts, initialAdventures, timezone }
     if (!response.ok) {
       setError(body?.error ?? "Unable to create adventure.");
     } else {
-      setAdventures((current) => [{ ...body.adventure, contacts: selectedContacts.map((id) => ({ contact: { id, name: contacts.find((contact) => contact.id === id)?.name ?? "Contact" } })) }, ...current]);
+      setAdventures((current) => [{ ...body.adventure, events: [], contacts: selectedContacts.map((id) => ({ contact: { id, name: contacts.find((contact) => contact.id === id)?.name ?? "Contact" } })) }, ...current]);
     }
     setPending(false);
   }
@@ -80,7 +81,7 @@ export function AdventuresPanel({ hikes, contacts, initialAdventures, timezone }
         <button className="rounded-xl bg-emerald-700 px-4 py-3 font-semibold text-white hover:bg-emerald-800 disabled:opacity-60" disabled={pending} type="submit">{pending ? "Creating..." : "Create adventure"}</button>
       </form>}
       {error && <p className="mt-4 text-sm text-red-700">{error}</p>}
-      {adventures.length > 0 && <div className="mt-8 border-t border-slate-100 pt-6"><h3 className="font-semibold text-slate-950">Your adventures</h3><div className="mt-3 space-y-3">{adventures.map((adventure) => <article className="rounded-xl border border-slate-200 p-4" key={adventure.id}><div className="flex items-center justify-between gap-4"><p className="font-semibold text-slate-950">{adventure.hike.title}</p><span className="text-xs font-semibold uppercase text-emerald-700">{adventure.status}</span></div><p className="mt-1 text-sm text-slate-600">Return {new Date(adventure.expectedReturnAt).toLocaleString()} · {adventure.contacts.map((item) => item.contact.name).join(", ")}</p><div className="mt-3 flex flex-wrap gap-4 text-sm font-semibold"><a className="text-emerald-700" href={`/adventures/${adventure.id}/share`}>Share with contacts →</a>{adventure.status === "HIKER_PINGED" && <a className="text-amber-700" href={`/adventures/${adventure.id}/acknowledge`}>Acknowledge & extend →</a>}{!["CHECKED_OUT", "RESOLVED_LATE"].includes(adventure.status) && <button className="text-slate-700 disabled:opacity-50" disabled={checkingOut !== null} onClick={() => checkoutAdventure(adventure.id)} type="button">{checkingOut === adventure.id ? "Checking out..." : "Check out"}</button>}</div></article>)}</div></div>}
+      {adventures.length > 0 && <div className="mt-8 border-t border-slate-100 pt-6"><h3 className="font-semibold text-slate-950">Your adventures</h3><div className="mt-3 space-y-3">{adventures.map((adventure) => <article className="rounded-xl border border-slate-200 p-4" key={adventure.id}><div className="flex items-center justify-between gap-4"><p className="font-semibold text-slate-950">{adventure.hike.title}</p><span className="text-xs font-semibold uppercase text-emerald-700">{adventure.status}</span></div><p className="mt-1 text-sm text-slate-600">Return {new Date(adventure.expectedReturnAt).toLocaleString()} · {adventure.contacts.map((item) => item.contact.name).join(", ")}</p><p className="mt-2 text-xs text-slate-500">Timeline: {adventure.events.map((event) => event.type.replaceAll("_", " ")).join(" → ") || "created"}</p><div className="mt-3 flex flex-wrap gap-4 text-sm font-semibold"><a className="text-emerald-700" href={`/adventures/${adventure.id}/share`}>Share with contacts →</a>{adventure.status === "HIKER_PINGED" && <a className="text-amber-700" href={`/adventures/${adventure.id}/acknowledge`}>Acknowledge & extend →</a>}{!["CHECKED_OUT", "RESOLVED_LATE"].includes(adventure.status) && <button className="text-slate-700 disabled:opacity-50" disabled={checkingOut !== null} onClick={() => checkoutAdventure(adventure.id)} type="button">{checkingOut === adventure.id ? "Checking out..." : "Check out"}</button>}</div></article>)}</div></div>}
     </section>
   );
 }
