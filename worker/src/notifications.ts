@@ -1,6 +1,6 @@
 import { createHash } from "node:crypto";
 
-type NotificationPurpose = "HIKER_PING" | "CONTACT_ALERT";
+type NotificationPurpose = "HIKER_PING" | "CONTACT_ALERT" | "REMINDER";
 type Recipient = { adventureId: string; phone: string | null; email: string | null };
 
 function maskDestination(destination: string, channel: "SMS" | "EMAIL") {
