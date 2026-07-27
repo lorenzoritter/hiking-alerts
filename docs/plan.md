@@ -51,7 +51,7 @@ items as scope evolves.
 
 - [x] Adventure form layout — align the hike selector with the other
       adventure fields and give it a clear `Hike` label.
-- [ ] Adventure date/time UX — make departure optional, present dates in a
+- [x] Adventure date/time UX — make departure optional, present dates in a
       consistent human-readable format such as `15 Aug 2026, 22:30`, and
       provide a reliable date-and-time picker across browsers instead of
       relying on inconsistent native `datetime-local` rendering.

@@ -4,7 +4,7 @@ const localDateTime = z.string().regex(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/, "Use a
 
 export const adventureSchema = z.object({
   hikeId: z.string().min(1),
-  startAtLocal: localDateTime,
+  startAtLocal: localDateTime.optional(),
   expectedReturnAtLocal: localDateTime,
   timezone: z.string().min(1).max(100),
   contactIds: z.array(z.string().min(1)).min(1).max(20).refine(

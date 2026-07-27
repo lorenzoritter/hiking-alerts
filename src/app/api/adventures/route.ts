@@ -58,12 +58,12 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Invalid timezone" }, { status: 400 });
   }
 
-  const startAt = parseLocalDateTime(data.startAtLocal, data.timezone);
+  const startAt = data.startAtLocal ? parseLocalDateTime(data.startAtLocal, data.timezone) : null;
   const expectedReturnAt = parseLocalDateTime(data.expectedReturnAtLocal, data.timezone);
-  if (!startAt || !expectedReturnAt) {
+  if (!expectedReturnAt || (data.startAtLocal && !startAt)) {
     return NextResponse.json({ error: "Invalid date or time" }, { status: 400 });
   }
-  if (startAt >= expectedReturnAt) {
+  if (startAt && startAt >= expectedReturnAt) {
     return NextResponse.json({ error: "Expected return must be after the start time" }, { status: 400 });
   }
 
@@ -85,7 +85,7 @@ export async function POST(request: Request) {
       userId: user.id,
       hikeId: hike.id,
       timezone: data.timezone,
-      startAt,
+      ...(startAt ? { startAt } : {}),
       expectedReturnAt,
       pingGraceMinutes: data.pingGraceMinutes,
       alertGraceMinutes: data.alertGraceMinutes,
