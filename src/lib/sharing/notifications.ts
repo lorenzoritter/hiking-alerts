@@ -12,7 +12,15 @@ type ShareRecipient = {
   url: string;
 };
 
-function maskDestination(destination: string, channel: "SMS" | "EMAIL") {
+type ContactRecipient = {
+  adventureId: string;
+  phone: string | null;
+  email: string | null;
+};
+
+export type NotificationPurpose = "SHARE" | "STAND_DOWN";
+
+export function maskDestination(destination: string, channel: "SMS" | "EMAIL") {
   if (channel === "SMS") {
     return `***${destination.slice(-4)}`;
   }
@@ -21,31 +29,35 @@ function maskDestination(destination: string, channel: "SMS" | "EMAIL") {
   return `${localPart?.slice(0, 1) ?? "*"}***@${domain ?? "unknown"}`;
 }
 
-function deliveryKey(adventureId: string, channel: "SMS" | "EMAIL", destination: string) {
+function deliveryKey(adventureId: string, channel: "SMS" | "EMAIL", destination: string, purpose: NotificationPurpose) {
   return createHash("sha256")
-    .update(`${adventureId}:${channel}:${destination}`)
+    .update(`${adventureId}:${purpose}:${channel}:${destination}`)
     .digest("hex");
 }
 
-export async function queueShareNotifications(recipients: ShareRecipient[]) {
-  const pendingLogs = await prisma.notificationLog.findMany({
-    where: { adventureId: recipients[0]?.adventureId, status: "PENDING" },
-    select: { channel: true, recipient: true },
-  });
-  const pendingKeys = new Set(pendingLogs.map((log) => `${log.channel}:${log.recipient}`));
-
-  await prisma.notificationLog.createMany({
-    data: recipients.flatMap((recipient) => {
+export function buildNotificationRecords(recipients: ContactRecipient[], purpose: NotificationPurpose) {
+  return recipients.flatMap((recipient) => {
       const channels = [];
       if (recipient.phone) channels.push({ channel: "SMS" as const, recipient: recipient.phone });
       if (recipient.email) channels.push({ channel: "EMAIL" as const, recipient: recipient.email });
-      return channels.filter(({ channel, recipient: destination }) => !pendingKeys.has(`${channel}:${maskDestination(destination, channel)}`)).map(({ channel, recipient: destination }) => ({
+      return channels.map(({ channel, recipient: destination }) => ({
         adventureId: recipient.adventureId,
         channel,
         recipient: maskDestination(destination, channel),
+        purpose,
         status: "PENDING" as const,
-        deliveryKey: deliveryKey(recipient.adventureId, channel, destination),
+        deliveryKey: deliveryKey(recipient.adventureId, channel, destination, purpose),
       }));
-    }),
+    });
+}
+
+export async function queueContactNotifications(recipients: ContactRecipient[], purpose: NotificationPurpose = "SHARE") {
+  await prisma.notificationLog.createMany({
+    data: buildNotificationRecords(recipients, purpose),
+    skipDuplicates: true,
   });
+}
+
+export async function queueShareNotifications(recipients: ShareRecipient[]) {
+  return queueContactNotifications(recipients);
 }

@@ -199,6 +199,7 @@ model NotificationLog {
 
   channel      NotificationChannel
   recipient    String
+  purpose      String            @default("SHARE")
   deliveryKey  String?           @unique
   status       NotificationStatus  @default(PENDING)
   errorMessage String?

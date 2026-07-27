@@ -30,6 +30,7 @@ export function AdventuresPanel({ hikes, contacts, initialAdventures, timezone }
   const [selectedContacts, setSelectedContacts] = useState<string[]>(contacts.filter((contact) => contact.isDefault).map((contact) => contact.id));
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
+  const [checkingOut, setCheckingOut] = useState<string | null>(null);
 
   async function createAdventure(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -49,6 +50,24 @@ export function AdventuresPanel({ hikes, contacts, initialAdventures, timezone }
     setPending(false);
   }
 
+  async function checkoutAdventure(id: string) {
+    setError(null);
+    setCheckingOut(id);
+    try {
+      const response = await fetch(`/api/adventures/${id}/checkout`, { method: "POST" });
+      const body = await response.json().catch(() => null);
+      if (!response.ok) {
+        setError(body?.error ?? "Unable to check out.");
+        return;
+      }
+      setAdventures((current) => current.map((adventure) => adventure.id === id ? { ...adventure, status: body.status } : adventure));
+    } catch {
+      setError("Unable to reach the server. Please try again.");
+    } finally {
+      setCheckingOut(null);
+    }
+  }
+
   return (
     <section className="mt-8 rounded-2xl border border-slate-200 bg-white p-7 shadow-sm">
       <p className="text-sm font-semibold uppercase tracking-[0.2em] text-emerald-700">Share an adventure</p>
@@ -61,7 +80,7 @@ export function AdventuresPanel({ hikes, contacts, initialAdventures, timezone }
         <button className="rounded-xl bg-emerald-700 px-4 py-3 font-semibold text-white hover:bg-emerald-800 disabled:opacity-60" disabled={pending} type="submit">{pending ? "Creating..." : "Create adventure"}</button>
       </form>}
       {error && <p className="mt-4 text-sm text-red-700">{error}</p>}
-      {adventures.length > 0 && <div className="mt-8 border-t border-slate-100 pt-6"><h3 className="font-semibold text-slate-950">Your adventures</h3><div className="mt-3 space-y-3">{adventures.map((adventure) => <article className="rounded-xl border border-slate-200 p-4" key={adventure.id}><div className="flex items-center justify-between gap-4"><p className="font-semibold text-slate-950">{adventure.hike.title}</p><span className="text-xs font-semibold uppercase text-emerald-700">{adventure.status}</span></div><p className="mt-1 text-sm text-slate-600">Return {new Date(adventure.expectedReturnAt).toLocaleString()} · {adventure.contacts.map((item) => item.contact.name).join(", ")}</p><a className="mt-3 inline-block text-sm font-semibold text-emerald-700" href={`/adventures/${adventure.id}/share`}>Share with contacts →</a></article>)}</div></div>}
+      {adventures.length > 0 && <div className="mt-8 border-t border-slate-100 pt-6"><h3 className="font-semibold text-slate-950">Your adventures</h3><div className="mt-3 space-y-3">{adventures.map((adventure) => <article className="rounded-xl border border-slate-200 p-4" key={adventure.id}><div className="flex items-center justify-between gap-4"><p className="font-semibold text-slate-950">{adventure.hike.title}</p><span className="text-xs font-semibold uppercase text-emerald-700">{adventure.status}</span></div><p className="mt-1 text-sm text-slate-600">Return {new Date(adventure.expectedReturnAt).toLocaleString()} · {adventure.contacts.map((item) => item.contact.name).join(", ")}</p><div className="mt-3 flex flex-wrap gap-4 text-sm font-semibold"><a className="text-emerald-700" href={`/adventures/${adventure.id}/share`}>Share with contacts →</a>{!["CHECKED_OUT", "RESOLVED_LATE"].includes(adventure.status) && <button className="text-slate-700 disabled:opacity-50" disabled={checkingOut !== null} onClick={() => checkoutAdventure(adventure.id)} type="button">{checkingOut === adventure.id ? "Checking out..." : "Check out"}</button>}</div></article>)}</div></div>}
     </section>
   );
 }
