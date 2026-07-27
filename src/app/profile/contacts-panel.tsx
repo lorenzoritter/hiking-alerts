@@ -23,34 +23,42 @@ export function ContactsPanel({ initialContacts }: ContactsPanelProps) {
     setPending(true);
     setError(null);
 
-    const response = await fetch("/api/contacts", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(form),
-    });
-    const body = await response.json().catch(() => null);
+    try {
+      const response = await fetch("/api/contacts", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(form),
+      });
+      const body = await response.json().catch(() => null);
 
-    if (!response.ok) {
-      setError(body?.error ?? "Unable to add contact.");
-    } else {
-      setContacts((current) => [
-        body.contact,
-        ...current.map((contact) => ({ ...contact, isDefault: form.isDefault ? false : contact.isDefault })),
-      ]);
-      setForm({ name: "", phone: "", email: "", isDefault: true });
+      if (!response.ok) {
+        setError(body?.error ?? "Unable to add contact.");
+      } else {
+        setContacts((current) => [
+          body.contact,
+          ...current.map((contact) => ({ ...contact, isDefault: form.isDefault ? false : contact.isDefault })),
+        ]);
+        setForm({ name: "", phone: "", email: "", isDefault: true });
+      }
+    } catch {
+      setError("Unable to reach the server. Please try again.");
+    } finally {
+      setPending(false);
     }
-
-    setPending(false);
   }
 
   async function removeContact(id: string) {
     setError(null);
-    const response = await fetch(`/api/contacts/${id}`, { method: "DELETE" });
-    if (!response.ok) {
-      setError("Unable to remove contact.");
-      return;
+    try {
+      const response = await fetch(`/api/contacts/${id}`, { method: "DELETE" });
+      if (!response.ok) {
+        setError("Unable to remove contact.");
+        return;
+      }
+      setContacts((current) => current.filter((contact) => contact.id !== id));
+    } catch {
+      setError("Unable to reach the server. Please try again.");
     }
-    setContacts((current) => current.filter((contact) => contact.id !== id));
   }
 
   return (

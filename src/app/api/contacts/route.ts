@@ -42,26 +42,30 @@ export async function POST(request: Request) {
     );
   }
 
-  const { name, phone, email, isDefault } = parsed.data;
-  const contact = await prisma.$transaction(async (transaction) => {
-    if (isDefault) {
-      await transaction.emergencyContact.updateMany({
-        where: { ownerUserId: user.id },
-        data: { isDefault: false },
+  try {
+    const { name, phone, email, isDefault } = parsed.data;
+    const contact = await prisma.$transaction(async (transaction) => {
+      if (isDefault) {
+        await transaction.emergencyContact.updateMany({
+          where: { ownerUserId: user.id },
+          data: { isDefault: false },
+        });
+      }
+
+      return transaction.emergencyContact.create({
+        data: {
+          ownerUserId: user.id,
+          name,
+          phone: phone || null,
+          email: email?.toLowerCase() || null,
+          isDefault,
+        },
+        select: { id: true, name: true, phone: true, email: true, isDefault: true },
       });
-    }
-
-    return transaction.emergencyContact.create({
-      data: {
-        ownerUserId: user.id,
-        name,
-        phone: phone || null,
-        email: email?.toLowerCase() || null,
-        isDefault,
-      },
-      select: { id: true, name: true, phone: true, email: true, isDefault: true },
     });
-  });
 
-  return NextResponse.json({ contact }, { status: 201 });
+    return NextResponse.json({ contact }, { status: 201 });
+  } catch {
+    return NextResponse.json({ error: "Unable to save contact. Please try again later." }, { status: 503 });
+  }
 }
