@@ -7,7 +7,7 @@ type Contact = { id: string; name: string; isDefault: boolean };
 type Adventure = {
   id: string;
   timezone: string;
-  startAt: string;
+  startAt: string | null;
   expectedReturnAt: string;
   status: string;
   hike: Hike;
@@ -23,11 +23,26 @@ function localDateTime(offsetHours: number) {
   return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
 }
 
+function dateTimeParts(offsetHours: number) {
+  const value = localDateTime(offsetHours);
+  const [date, time] = value.split("T");
+  return { date, time };
+}
+
+function formatPreview(date: string, time: string) {
+  if (!date || !time) return "Not set";
+  return new Intl.DateTimeFormat("en-GB", { day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit", hour12: false }).format(new Date(`${date}T${time}:00`));
+}
+
 export function AdventuresPanel({ hikes, contacts, initialAdventures, timezone }: AdventuresPanelProps) {
   const [adventures, setAdventures] = useState(initialAdventures);
   const [hikeId, setHikeId] = useState(hikes[0]?.id ?? "");
-  const [startAtLocal, setStartAtLocal] = useState(localDateTime(1));
-  const [expectedReturnAtLocal, setExpectedReturnAtLocal] = useState(localDateTime(5));
+  const initialStart = dateTimeParts(1);
+  const initialReturn = dateTimeParts(5);
+  const [startDate, setStartDate] = useState(initialStart.date);
+  const [startTime, setStartTime] = useState(initialStart.time);
+  const [returnDate, setReturnDate] = useState(initialReturn.date);
+  const [returnTime, setReturnTime] = useState(initialReturn.time);
   const [selectedContacts, setSelectedContacts] = useState<string[]>(contacts.filter((contact) => contact.isDefault).map((contact) => contact.id));
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
@@ -40,7 +55,7 @@ export function AdventuresPanel({ hikes, contacts, initialAdventures, timezone }
     const response = await fetch("/api/adventures", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ hikeId, startAtLocal, expectedReturnAtLocal, timezone, contactIds: selectedContacts, pingGraceMinutes: 30, alertGraceMinutes: 30 }),
+      body: JSON.stringify({ hikeId, startAtLocal: `${startDate}T${startTime}`, expectedReturnAtLocal: `${returnDate}T${returnTime}`, timezone, contactIds: selectedContacts, pingGraceMinutes: 30, alertGraceMinutes: 30 }),
     });
     const body = await response.json().catch(() => null);
     if (!response.ok) {
@@ -74,7 +89,8 @@ export function AdventuresPanel({ hikes, contacts, initialAdventures, timezone }
       <p className="text-sm font-semibold uppercase tracking-[0.2em] text-emerald-700">Share an adventure</p>
       <h2 className="mt-3 text-2xl font-semibold tracking-tight text-slate-950">Set a return time</h2>
       {hikes.length === 0 || contacts.length === 0 ? <p className="mt-4 rounded-xl bg-amber-50 px-4 py-3 text-sm text-amber-900">Create a hike and at least one emergency contact before sharing an adventure.</p> : <form className="mt-6 space-y-4" onSubmit={createAdventure}>
-        <div className="grid gap-4 sm:grid-cols-2"><label className="text-sm font-medium text-slate-700">Hike<select className="mt-2 block w-full rounded-xl border border-slate-300 px-4 py-3 font-normal text-slate-950" value={hikeId} onChange={(event) => setHikeId(event.target.value)} required><option value="">Choose a hike</option>{hikes.map((hike) => <option key={hike.id} value={hike.id}>{hike.title}</option>)}</select></label><label className="text-sm font-medium text-slate-700">Start time<input className="mt-2 block w-full rounded-xl border border-slate-300 px-4 py-3 font-normal text-slate-950" type="datetime-local" value={startAtLocal} onChange={(event) => setStartAtLocal(event.target.value)} required /></label><label className="text-sm font-medium text-slate-700">Expected return<input className="mt-2 block w-full rounded-xl border border-slate-300 px-4 py-3 font-normal text-slate-950" type="datetime-local" value={expectedReturnAtLocal} onChange={(event) => setExpectedReturnAtLocal(event.target.value)} required /></label></div>
+        <label className="block text-sm font-medium text-slate-700">Hike<select className="mt-2 block w-full rounded-xl border border-slate-300 px-4 py-3 font-normal text-slate-950" value={hikeId} onChange={(event) => setHikeId(event.target.value)} required><option value="">Choose a hike</option>{hikes.map((hike) => <option key={hike.id} value={hike.id}>{hike.title}</option>)}</select></label>
+        <div className="grid gap-4 sm:grid-cols-2"><fieldset className="rounded-xl border border-slate-200 p-3"><legend className="px-1 text-sm font-medium text-slate-700">Departure</legend><div className="grid grid-cols-2 gap-2"><input aria-label="Departure date" className="rounded-lg border border-slate-300 px-3 py-2 font-normal text-slate-950" type="date" value={startDate} onChange={(event) => setStartDate(event.target.value)} required /><input aria-label="Departure time (24-hour)" className="rounded-lg border border-slate-300 px-3 py-2 font-normal text-slate-950" type="time" value={startTime} onChange={(event) => setStartTime(event.target.value)} required /></div><p className="mt-2 text-xs text-slate-500">{formatPreview(startDate, startTime)} · 24-hour time</p></fieldset><fieldset className="rounded-xl border border-slate-200 p-3"><legend className="px-1 text-sm font-medium text-slate-700">Expected return</legend><div className="grid grid-cols-2 gap-2"><input aria-label="Expected return date" className="rounded-lg border border-slate-300 px-3 py-2 font-normal text-slate-950" type="date" value={returnDate} onChange={(event) => setReturnDate(event.target.value)} required /><input aria-label="Expected return time (24-hour)" className="rounded-lg border border-slate-300 px-3 py-2 font-normal text-slate-950" type="time" value={returnTime} onChange={(event) => setReturnTime(event.target.value)} required /></div><p className="mt-2 text-xs text-slate-500">{formatPreview(returnDate, returnTime)} · 24-hour time</p></fieldset></div>
         <p className="text-xs text-slate-500">Times use {timezone}. Hiker ping: 30 minutes late. Contact alert: 30 minutes after the ping.</p>
         <fieldset><legend className="text-sm font-medium text-slate-700">Emergency contacts</legend><div className="mt-2 grid gap-2 sm:grid-cols-2">{contacts.map((contact) => <label className="flex items-center gap-2 text-sm text-slate-700" key={contact.id}><input checked={selectedContacts.includes(contact.id)} onChange={(event) => setSelectedContacts((current) => event.target.checked ? [...current, contact.id] : current.filter((id) => id !== contact.id))} type="checkbox" />{contact.name}</label>)}</div></fieldset>
         <button className="rounded-xl bg-emerald-700 px-4 py-3 font-semibold text-white hover:bg-emerald-800 disabled:opacity-60" disabled={pending} type="submit">{pending ? "Creating..." : "Create adventure"}</button>
