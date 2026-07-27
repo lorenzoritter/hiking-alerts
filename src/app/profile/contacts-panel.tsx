@@ -32,7 +32,12 @@ export function ContactsPanel({ initialContacts }: ContactsPanelProps) {
       const body = await response.json().catch(() => null);
 
       if (!response.ok) {
-        setError(body?.error ?? "Unable to add contact.");
+        setError(
+          body?.details?.phone?.[0] ??
+            body?.details?.email?.[0] ??
+            body?.error ??
+            "Unable to add contact.",
+        );
       } else {
         setContacts((current) => [
           body.contact,
@@ -86,7 +91,7 @@ export function ContactsPanel({ initialContacts }: ContactsPanelProps) {
         <label className="flex items-center gap-2 text-sm text-slate-700"><input checked={form.isDefault} onChange={(event) => setForm({ ...form, isDefault: event.target.checked })} type="checkbox" /> Make default contact</label>
         <button className="rounded-xl bg-emerald-700 px-4 py-3 font-semibold text-white hover:bg-emerald-800 disabled:opacity-60 sm:col-span-2" disabled={pending} type="submit">{pending ? "Adding..." : "Add emergency contact"}</button>
       </form>
-      {error && <p className="mt-4 text-sm text-red-700">{error}</p>}
+      {error && <p aria-live="polite" className="mt-4 text-sm text-red-700" role="alert">{error}</p>}
     </section>
   );
 }
