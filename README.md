@@ -152,9 +152,10 @@ Postgres/Redis, migration, worker, and safety configuration.
 
 This repo configures an [opencode](https://opencode.ai) `code-reviewer`
 subagent (`.opencode/agent/code-reviewer.md`) that reviews diffs for
-correctness, security, and best practices. Shell commands are allowed for
-inspection and verification; file edits require confirmation. Invoke it
-before finalizing a pull request.
+correctness, security, and best practices. It is review-only: shell commands
+are allowed for inspection and verification, but it never edits files, commits,
+pushes, or updates PR descriptions. The developer agent owns fixes and PR
+description updates, then invokes the reviewer again for follow-up approval.
 
 ## Project status
 
