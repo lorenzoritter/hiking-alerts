@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 
 import { getCurrentUser } from "@/lib/auth/dal";
 import { prisma } from "@/lib/prisma";
-import { queueShareNotifications } from "@/lib/sharing/notifications";
+import { buildNotificationRecords, queueShareNotifications } from "@/lib/sharing/notifications";
 
 type ShareRouteContext = { params: Promise<{ id: string }> };
 
@@ -45,8 +45,9 @@ export async function POST(request: Request, context: ShareRouteContext) {
     url: `${origin}/contact/adventures/${link.accessToken}`,
   }));
   await queueShareNotifications(recipients);
+  const currentDeliveryKeys = buildNotificationRecords(recipients, "SHARE").map((record) => record.deliveryKey);
   const notifications = await prisma.notificationLog.findMany({
-    where: { adventureId: id, purpose: "SHARE" },
+    where: { adventureId: id, purpose: "SHARE", deliveryKey: { in: currentDeliveryKeys } },
     select: { id: true, channel: true, recipient: true, status: true, errorMessage: true, sentAt: true, createdAt: true },
     orderBy: { createdAt: "desc" },
   });
