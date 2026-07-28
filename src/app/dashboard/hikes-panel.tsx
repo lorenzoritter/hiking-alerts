@@ -71,7 +71,7 @@ export function HikesPanel({ initialHikes }: HikesPanelProps) {
           <article className="rounded-xl border border-slate-200 p-4" key={hike.id}>
             <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
               <div className="min-w-0"><h3 className="break-words font-semibold text-slate-950">{hike.title}</h3><p className="mt-1 whitespace-pre-wrap break-words text-sm text-slate-600">{hike.description}</p></div>
-              <div className="flex gap-4 text-sm font-semibold sm:shrink-0"><button className="text-emerald-700 hover:text-emerald-800" onClick={() => beginEdit(hike)} type="button">Edit</button><button className="text-red-700 hover:text-red-800" onClick={() => deleteHike(hike.id)} type="button">Delete</button></div>
+              <div className="flex gap-2 text-sm font-semibold sm:shrink-0"><button className="inline-flex min-h-11 items-center px-2 text-emerald-700 hover:text-emerald-800" onClick={() => beginEdit(hike)} type="button">Edit</button><button className="inline-flex min-h-11 items-center px-2 text-red-700 hover:text-red-800" onClick={() => deleteHike(hike.id)} type="button">Delete</button></div>
             </div>
           </article>
         ))}

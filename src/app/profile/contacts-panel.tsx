@@ -79,7 +79,7 @@ export function ContactsPanel({ initialContacts }: ContactsPanelProps) {
               <p className="font-semibold text-slate-950">{contact.name}{contact.isDefault && <span className="ml-2 text-xs font-medium text-emerald-700">Default</span>}</p>
               <p className="break-all text-sm text-slate-500">{contact.phone ?? contact.email}</p>
             </div>
-            <button className="text-sm font-semibold text-red-700 hover:text-red-800" onClick={() => removeContact(contact.id)} type="button">Remove</button>
+            <button className="inline-flex min-h-11 items-center px-2 text-sm font-semibold text-red-700 hover:text-red-800" onClick={() => removeContact(contact.id)} type="button">Remove</button>
           </div>
         ))}
       </div>
