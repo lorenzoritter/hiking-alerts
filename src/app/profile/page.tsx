@@ -14,7 +14,7 @@ export default async function ProfilePage() {
   });
 
   return (
-    <main className="min-h-screen bg-slate-50 px-6 py-10">
+    <main className="min-h-screen bg-slate-50 px-4 py-6 sm:px-6 sm:py-10">
       <div className="mx-auto max-w-2xl">
         <div className="flex items-center justify-between">
           <Link className="text-sm font-semibold text-emerald-700 hover:text-emerald-800" href="/dashboard">
@@ -24,14 +24,14 @@ export default async function ProfilePage() {
             <button className="text-sm font-semibold text-slate-600 hover:text-slate-950" type="submit">Sign out</button>
           </form>
         </div>
-        <div className="mt-10 rounded-2xl border border-slate-200 bg-white p-7 shadow-sm">
+        <div className="mt-8 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:mt-10 sm:p-7">
           <p className="text-sm font-semibold uppercase tracking-[0.2em] text-emerald-700">Profile</p>
-          <h1 className="mt-3 text-3xl font-semibold tracking-tight text-slate-950">Your account</h1>
+            <h1 className="mt-3 text-3xl font-semibold tracking-tight text-slate-950">Your account</h1>
           <dl className="mt-8 divide-y divide-slate-100">
             <div className="grid gap-1 py-4 sm:grid-cols-3"><dt className="text-sm font-medium text-slate-500">Name</dt><dd className="text-sm text-slate-950 sm:col-span-2">{user.name}</dd></div>
-            <div className="grid gap-1 py-4 sm:grid-cols-3"><dt className="text-sm font-medium text-slate-500">Email</dt><dd className="text-sm text-slate-950 sm:col-span-2">{user.email}</dd></div>
+            <div className="grid gap-1 py-4 sm:grid-cols-3"><dt className="text-sm font-medium text-slate-500">Email</dt><dd className="break-all text-sm text-slate-950 sm:col-span-2">{user.email}</dd></div>
             <div className="grid gap-1 py-4 sm:grid-cols-3"><dt className="text-sm font-medium text-slate-500">Phone</dt><dd className="text-sm text-slate-950 sm:col-span-2">{user.phone ?? "Not set"}</dd></div>
-            <div className="grid gap-1 py-4 sm:grid-cols-3"><dt className="text-sm font-medium text-slate-500">Timezone</dt><dd className="text-sm text-slate-950 sm:col-span-2">{user.timezone}</dd></div>
+            <div className="grid gap-1 py-4 sm:grid-cols-3"><dt className="text-sm font-medium text-slate-500">Timezone</dt><dd className="break-words text-sm text-slate-950 sm:col-span-2">{user.timezone}</dd></div>
           </dl>
           <p className="mt-6 rounded-xl bg-amber-50 px-4 py-3 text-sm text-amber-900">Profile editing will be added in a later step. Emergency contacts are ready to use below.</p>
         </div>
