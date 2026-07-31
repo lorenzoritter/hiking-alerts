@@ -31,13 +31,18 @@ export async function PATCH(request: Request, context: ContactRouteContext) {
 
   const existing = await prisma.emergencyContact.findFirst({
     where: { id, ownerUserId: user.id },
-    select: { id: true },
+    select: { id: true, phone: true, email: true },
   });
   if (!existing) {
     return NextResponse.json({ error: "Contact not found" }, { status: 404 });
   }
 
   const { name, phone, email, isDefault } = parsed.data;
+  const nextPhone = phone !== undefined ? phone || null : existing.phone;
+  const nextEmail = email !== undefined ? email || null : existing.email;
+  if (!nextPhone && !nextEmail) {
+    return NextResponse.json({ error: "A contact must have a phone number or email address." }, { status: 400 });
+  }
   const contact = await prisma.$transaction(async (transaction) => {
     if (isDefault) {
       await transaction.emergencyContact.updateMany({

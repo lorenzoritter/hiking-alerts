@@ -3,11 +3,11 @@ import { z } from "zod";
 const contactFields = {
   name: z.string().trim().min(2).max(100),
   phone: z.preprocess(
-    (value) => (value === "" ? undefined : value),
+    (value) => (typeof value === "string" && value.trim() === "" ? undefined : value),
     z.string().trim().max(30).optional(),
   ),
   email: z.preprocess(
-    (value) => (value === "" ? undefined : value),
+    (value) => (typeof value === "string" && value.trim() === "" ? undefined : value),
     z.string().trim().email().max(320).optional(),
   ),
   isDefault: z.boolean().default(false),
