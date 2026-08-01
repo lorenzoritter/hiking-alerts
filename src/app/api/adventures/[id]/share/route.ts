@@ -18,8 +18,9 @@ export async function POST(request: Request, context: ShareRouteContext) {
     where: { id, userId: user.id },
     select: {
       id: true,
-    contacts: {
+      contacts: {
         select: {
+          id: true,
           accessToken: true,
           accessTokenExpiresAt: true,
           contact: { select: { name: true, phone: true, email: true } },
@@ -32,12 +33,30 @@ export async function POST(request: Request, context: ShareRouteContext) {
     return NextResponse.json({ error: "Adventure not found" }, { status: 404 });
   }
 
+  const now = new Date();
+  const contacts = await prisma.$transaction(async (transaction) => Promise.all(adventure.contacts.map((link) => {
+    if (link.accessTokenExpiresAt && link.accessTokenExpiresAt > now) return link;
+    return transaction.adventureContact.update({
+      where: { id: link.id },
+      data: {
+        accessToken: crypto.randomUUID(),
+        accessTokenExpiresAt: new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000),
+      },
+      select: {
+        id: true,
+        accessToken: true,
+        accessTokenExpiresAt: true,
+        contact: { select: { name: true, phone: true, email: true } },
+      },
+    });
+  })));
+
   const configuredOrigin = process.env.PUBLIC_APP_URL;
   if (!configuredOrigin || !/^https?:\/\//.test(configuredOrigin)) {
     return NextResponse.json({ error: "PUBLIC_APP_URL is not configured" }, { status: 503 });
   }
   const origin = configuredOrigin.replace(/\/$/, "");
-  const recipients = adventure.contacts.map((link) => ({
+  const recipients = contacts.map((link) => ({
     adventureId: adventure.id,
     name: link.contact.name,
     phone: link.contact.phone,
@@ -52,7 +71,7 @@ export async function POST(request: Request, context: ShareRouteContext) {
       phone,
       email,
       url,
-      expiresAt: adventure.contacts[index]?.accessTokenExpiresAt,
+       expiresAt: contacts[index]?.accessTokenExpiresAt,
     })),
     notificationStatus: "queued",
   });
