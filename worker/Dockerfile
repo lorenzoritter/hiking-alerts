@@ -12,9 +12,9 @@ RUN npm ci --ignore-scripts
 
 COPY . .
 
-# Prisma Client generation only needs the schema; runtime DATABASE_URL is
-# supplied by the deployment environment.
-ENV DATABASE_URL="postgresql://build:build@localhost:5432/build"
+# Prisma Client generation needs a datasource URL, but this build-only value
+# must not become a runtime environment variable in the image.
+ARG DATABASE_URL="postgresql://build:build@localhost:5432/build"
 RUN npm run worker:build
 
 CMD ["npm", "run", "worker:start"]
