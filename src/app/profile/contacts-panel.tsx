@@ -57,7 +57,8 @@ export function ContactsPanel({ initialContacts }: ContactsPanelProps) {
     try {
       const response = await fetch(`/api/contacts/${id}`, { method: "DELETE" });
       if (!response.ok) {
-        setError("Unable to remove contact.");
+        const body = await response.json().catch(() => null);
+        setError(body?.error ?? "Unable to remove contact.");
         return;
       }
       setContacts((current) => current.filter((contact) => contact.id !== id));

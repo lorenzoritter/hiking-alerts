@@ -69,6 +69,16 @@ export async function DELETE(_request: Request, context: ContactRouteContext) {
   }
 
   const { id } = await context.params;
+  const activeAdventureLink = await prisma.adventureContact.findFirst({
+    where: {
+      contactId: id,
+      adventure: { userId: user.id, status: { notIn: ["CHECKED_OUT", "RESOLVED_LATE"] } },
+    },
+    select: { id: true },
+  });
+  if (activeAdventureLink) {
+    return NextResponse.json({ error: "This contact cannot be removed while linked to an active adventure." }, { status: 409 });
+  }
   const deleted = await prisma.emergencyContact.deleteMany({
     where: { id, ownerUserId: user.id },
   });
