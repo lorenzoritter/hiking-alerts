@@ -4,7 +4,7 @@ const contactFields = {
   name: z.string().trim().min(2).max(100),
   phone: z.preprocess(
     (value) => (typeof value === "string" ? value.trim() : value),
-    z.string().trim().max(30).optional(),
+    z.string().trim().min(1).max(30).optional(),
   ),
   email: z.preprocess(
     (value) => (typeof value === "string" ? value.trim() : value),
