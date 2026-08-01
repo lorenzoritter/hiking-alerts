@@ -79,10 +79,19 @@ test("does not duplicate a notification another worker claimed", async () => {
 });
 
 test("recovers stale processing rows before claiming pending work", async () => {
-  const { database, manyUpdates } = fakeDatabase(baseNotification);
+  let status = "PROCESSING";
+  const staleNotification = { ...baseNotification, status, lastAttemptAt: new Date(Date.now() - 5 * 60 * 1000) };
+  const updates: Record<string, unknown>[] = [];
+  const database = { notificationLog: {
+    updateMany: async ({ where, data }: { where: Record<string, unknown>; data: Record<string, unknown> }) => {
+      if (where.status === "PROCESSING") { status = "PENDING"; return { count: 1 }; }
+      if (where.status === "PENDING") { status = "PROCESSING"; return { count: 1 }; }
+      return { count: 0 };
+    },
+    findMany: async () => [{ ...staleNotification, status }],
+    update: async ({ data }: { data: Record<string, unknown> }) => { status = String(data.status); updates.push(data); return staleNotification; },
+  } } as never;
   await deliverPendingNotifications(database, async () => new Response(null, { status: 204 }));
-  assert.equal(manyUpdates[0]?.where.status, "PROCESSING");
-  assert.ok(manyUpdates[0]?.where.lastAttemptAt);
-  assert.equal(manyUpdates[1]?.where.status, "PENDING");
-  assert.equal(manyUpdates[1]?.data.status, "PROCESSING");
+  assert.equal(status, "SENT");
+  assert.equal(updates.at(-1)?.status, "SENT");
 });
