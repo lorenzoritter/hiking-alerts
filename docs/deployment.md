@@ -78,8 +78,11 @@ and adventure ID to that private adapter, optionally using
 `NOTIFICATION_WEBHOOK_SECRET` as a bearer token. Failed deliveries remain
 pending for up to three attempts, then become `FAILED`; successful deliveries
 become `SENT`. The dashboard must still not treat `PENDING` as proof that a
-contact was notified. Configure provider credentials, consent/compliance, and
-monitoring in the webhook adapter before real safety-critical use.
+contact was notified. The webhook is a trusted server-side boundary: it
+receives unmasked destinations, must validate the bearer secret, honor the
+`Idempotency-Key`, and must not expose its request logs publicly. Configure
+provider credentials, consent/compliance, and monitoring in the webhook adapter
+before real safety-critical use.
 
 ## Safety requirements
 

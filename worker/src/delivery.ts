@@ -3,11 +3,13 @@ import { prisma } from "./prisma.js";
 const MAX_ATTEMPTS = 3;
 
 export async function deliverPendingNotifications() {
+  const staleBefore = new Date(Date.now() - 2 * 60 * 1000);
+  await prisma.notificationLog.updateMany({ where: { status: "PROCESSING", lastAttemptAt: { lt: staleBefore } }, data: { status: "PENDING" } });
   const pending = await prisma.notificationLog.findMany({
     where: { status: "PENDING", destination: { not: null } },
     orderBy: { createdAt: "asc" },
     take: 25,
-    select: { id: true, adventureId: true, channel: true, destination: true, purpose: true, attempts: true },
+    select: { id: true, adventureId: true, channel: true, destination: true, purpose: true, attempts: true, deliveryKey: true },
   });
   const webhook = process.env.NOTIFICATION_WEBHOOK_URL;
   let delivered = 0;
@@ -16,6 +18,8 @@ export async function deliverPendingNotifications() {
   for (const notification of pending) {
     const attemptAt = new Date();
     const attempts = notification.attempts + 1;
+    const claimed = await prisma.notificationLog.updateMany({ where: { id: notification.id, status: "PENDING" }, data: { status: "PROCESSING", attempts, lastAttemptAt: attemptAt } });
+    if (claimed.count === 0) continue;
     if (!webhook || !notification.destination) {
       await prisma.notificationLog.update({ where: { id: notification.id }, data: { attempts, lastAttemptAt: attemptAt, status: "FAILED", errorMessage: "Notification provider is not configured" } });
       failed += 1;
@@ -23,7 +27,7 @@ export async function deliverPendingNotifications() {
     }
 
     try {
-      const response = await fetch(webhook, { method: "POST", headers: { "Content-Type": "application/json", ...(process.env.NOTIFICATION_WEBHOOK_SECRET ? { Authorization: `Bearer ${process.env.NOTIFICATION_WEBHOOK_SECRET}` } : {}) }, body: JSON.stringify({ adventureId: notification.adventureId, channel: notification.channel, destination: notification.destination, purpose: notification.purpose }) });
+      const response = await fetch(webhook, { method: "POST", signal: AbortSignal.timeout(10_000), headers: { "Content-Type": "application/json", "Idempotency-Key": notification.deliveryKey ?? notification.id, ...(process.env.NOTIFICATION_WEBHOOK_SECRET ? { Authorization: `Bearer ${process.env.NOTIFICATION_WEBHOOK_SECRET}` } : {}) }, body: JSON.stringify({ adventureId: notification.adventureId, channel: notification.channel, destination: notification.destination, purpose: notification.purpose }) });
       if (!response.ok) throw new Error(`provider returned ${response.status}`);
       await prisma.notificationLog.update({ where: { id: notification.id }, data: { attempts, lastAttemptAt: attemptAt, status: "SENT", sentAt: new Date(), errorMessage: null } });
       delivered += 1;

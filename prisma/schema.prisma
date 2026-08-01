@@ -37,6 +37,7 @@ enum NotificationChannel {
 
 enum NotificationStatus {
   PENDING
+  PROCESSING
   SENT
   FAILED
 }
