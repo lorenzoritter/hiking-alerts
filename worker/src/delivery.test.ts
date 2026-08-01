@@ -7,10 +7,10 @@ const { deliverPendingNotifications } = await import("./delivery.js");
 
 function fakeDatabase(notification: Record<string, unknown>, claimCount = 1) {
   const updates: Record<string, unknown>[] = [];
-  const manyUpdates: Record<string, unknown>[] = [];
+  const manyUpdates: { where: Record<string, unknown>; data: Record<string, unknown> }[] = [];
   const database = {
     notificationLog: {
-      updateMany: async ({ data }: { data: Record<string, unknown> }) => { manyUpdates.push(data); return { count: manyUpdates.length === 1 ? 1 : claimCount }; },
+      updateMany: async ({ where, data }: { where: Record<string, unknown>; data: Record<string, unknown> }) => { manyUpdates.push({ where, data }); return { count: manyUpdates.length === 1 ? 1 : claimCount }; },
       findMany: async () => [notification],
       update: async ({ data }: { data: Record<string, unknown> }) => { updates.push(data); return notification; },
     },
@@ -27,6 +27,15 @@ test("delivers a pending notification with an idempotency key", async () => {
   assert.deepEqual(result, { delivered: 1, failed: 0, inspected: 1 });
   assert.equal((requestInit?.headers as Record<string, string>)["Idempotency-Key"], "key-1");
   assert.equal(updates.at(-1)?.status, "SENT");
+});
+
+test("reuses the same idempotency key for repeated delivery attempts", async () => {
+  const keys: string[] = [];
+  for (let index = 0; index < 2; index += 1) {
+    const { database } = fakeDatabase(baseNotification);
+    await deliverPendingNotifications(database, async (_url, init) => { keys.push((init?.headers as Record<string, string>)["Idempotency-Key"]); return new Response(null, { status: 204 }); });
+  }
+  assert.deepEqual(keys, ["key-1", "key-1"]);
 });
 
 test("keeps failed delivery pending before the retry limit", async () => {
@@ -72,6 +81,8 @@ test("does not duplicate a notification another worker claimed", async () => {
 test("recovers stale processing rows before claiming pending work", async () => {
   const { database, manyUpdates } = fakeDatabase(baseNotification);
   await deliverPendingNotifications(database, async () => new Response(null, { status: 204 }));
-  assert.equal(manyUpdates[0]?.status, "PENDING");
-  assert.equal(manyUpdates[1]?.status, "PROCESSING");
+  assert.equal(manyUpdates[0]?.where.status, "PROCESSING");
+  assert.ok(manyUpdates[0]?.where.lastAttemptAt);
+  assert.equal(manyUpdates[1]?.where.status, "PENDING");
+  assert.equal(manyUpdates[1]?.data.status, "PROCESSING");
 });
