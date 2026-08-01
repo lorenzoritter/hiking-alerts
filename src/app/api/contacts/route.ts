@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 
+import { Prisma } from "@/generated/prisma/client";
 import { getCurrentUser } from "@/lib/auth/dal";
 import { prisma } from "@/lib/prisma";
 import { contactSchema } from "@/lib/contacts/definitions";
@@ -65,7 +66,10 @@ export async function POST(request: Request) {
     });
 
     return NextResponse.json({ contact }, { status: 201 });
-  } catch {
+  } catch (error) {
+    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002") {
+      return NextResponse.json({ error: "Another default contact was selected concurrently. Please try again." }, { status: 409 });
+    }
     return NextResponse.json({ error: "Unable to save contact. Please try again later." }, { status: 503 });
   }
 }
