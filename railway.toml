@@ -3,5 +3,6 @@ builder = "DOCKERFILE"
 dockerfilePath = "worker/Dockerfile"
 
 [deploy]
+preDeployCommand = "npm run db:migrate:deploy"
 restartPolicyType = "ON_FAILURE"
 restartPolicyMaxRetries = 10

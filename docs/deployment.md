@@ -65,8 +65,10 @@ docker run --rm \
   hiking-alerts-worker
 ```
 
-Railway can use `railway.toml` and the included Dockerfile. Configure a
-restart policy because the worker is responsible for time-based escalation.
+Railway can use `railway.toml` and the included Dockerfile. The Railway
+configuration runs `npm run db:migrate:deploy` as a pre-deploy command before
+the service starts. Configure a restart policy because the worker is
+responsible for time-based escalation.
 Monitor worker logs and Redis connectivity; a web deployment alone does not
 run the escalation scheduler.
 
