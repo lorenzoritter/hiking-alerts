@@ -72,12 +72,17 @@ run the escalation scheduler.
 
 ## Notifications
 
-The current Phase 1 implementation creates durable, masked notification-log
-records with `PENDING` status. It does not claim delivery until an SMS/email
-provider adapter is configured and a delivery process updates those records.
-Do not treat a queued record as proof that a contact was notified. Provider
-credentials, consent/compliance requirements, retry policy, and delivery
-observability should be completed before real safety-critical use.
+The worker delivers pending notification records through the configured
+`NOTIFICATION_WEBHOOK_URL`. It sends the channel, unmasked destination, purpose,
+and adventure ID to that private adapter, optionally using
+`NOTIFICATION_WEBHOOK_SECRET` as a bearer token. Failed deliveries remain
+pending for up to three attempts, then become `FAILED`; successful deliveries
+become `SENT`. The dashboard must still not treat `PENDING` as proof that a
+contact was notified. The webhook is a trusted server-side boundary: it
+receives unmasked destinations, must validate the bearer secret, honor the
+`Idempotency-Key`, and must not expose its request logs publicly. Configure
+provider credentials, consent/compliance, and monitoring in the webhook adapter
+before real safety-critical use.
 
 ## Safety requirements
 

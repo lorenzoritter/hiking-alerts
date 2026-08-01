@@ -5,6 +5,7 @@ import { Worker } from "bullmq";
 import { overdueQueue, redisConnection, scheduleOverdueScan } from "./queue.js";
 import { scanOverdueAdventures } from "./escalation.js";
 import { prisma } from "./prisma.js";
+import { deliverPendingNotifications } from "./delivery.js";
 
 const worker = new Worker(
   "hiking-alerts-overdue",
@@ -14,7 +15,8 @@ const worker = new Worker(
     }
 
     const result = await scanOverdueAdventures();
-    console.log(`Overdue scan ${new Date().toISOString()}: ${JSON.stringify(result)}`);
+    const deliveries = await deliverPendingNotifications();
+    console.log(`Overdue scan ${new Date().toISOString()}: ${JSON.stringify({ ...result, deliveries })}`);
   },
   { connection: redisConnection },
 );
