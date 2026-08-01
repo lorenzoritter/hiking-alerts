@@ -20,9 +20,10 @@ export function buildNotificationRecords(recipients: Recipient[], purpose: Notif
     if (recipient.email) channels.push({ channel: "EMAIL" as const, destination: recipient.email });
     return channels.map(({ channel, destination }) => ({
       adventureId: recipient.adventureId,
-      channel,
-      recipient: maskDestination(destination, channel),
-      purpose,
+       channel,
+       recipient: maskDestination(destination, channel),
+       destination,
+       purpose,
       status: "PENDING" as const,
       deliveryKey: deliveryKey(recipient.adventureId, purpose, channel, destination),
     }));

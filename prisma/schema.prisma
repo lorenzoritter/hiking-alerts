@@ -141,16 +141,16 @@ model Adventure {
 /// with, plus a unique per-adventure access token used for the no-login
 /// contact-facing link.
 model AdventureContact {
-  id          String    @id @default(cuid())
+  id          String           @id @default(cuid())
   adventureId String
-  adventure   Adventure @relation(fields: [adventureId], references: [id], onDelete: Cascade)
+  adventure   Adventure        @relation(fields: [adventureId], references: [id], onDelete: Cascade)
   contactId   String
   contact     EmergencyContact @relation(fields: [contactId], references: [id], onDelete: Cascade)
 
-  accessToken String    @unique
+  accessToken          String    @unique
   accessTokenExpiresAt DateTime?
-  notifiedAt  DateTime?
-  createdAt   DateTime  @default(now())
+  notifiedAt           DateTime?
+  createdAt            DateTime  @default(now())
 
   @@unique([adventureId, contactId])
   @@map("adventure_contacts")
@@ -198,14 +198,17 @@ model NotificationLog {
   adventureId String
   adventure   Adventure @relation(fields: [adventureId], references: [id], onDelete: Cascade)
 
-  channel      NotificationChannel
-  recipient    String
-  purpose      String            @default("SHARE")
-  deliveryKey  String?           @unique
-  status       NotificationStatus  @default(PENDING)
-  errorMessage String?
-  sentAt       DateTime?
-  createdAt    DateTime            @default(now())
+  channel       NotificationChannel
+  recipient     String
+  destination   String?
+  purpose       String              @default("SHARE")
+  deliveryKey   String?             @unique
+  status        NotificationStatus  @default(PENDING)
+  attempts      Int                 @default(0)
+  lastAttemptAt DateTime?
+  errorMessage  String?
+  sentAt        DateTime?
+  createdAt     DateTime            @default(now())
 
   @@index([adventureId])
   @@map("notification_logs")
