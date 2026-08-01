@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 
+import { Prisma } from "@/generated/prisma/client";
 import { getCurrentUser } from "@/lib/auth/dal";
 import { prisma } from "@/lib/prisma";
 import { hikeUpdateSchema } from "@/lib/hikes/definitions";
@@ -58,11 +59,15 @@ export async function DELETE(_request: Request, context: HikeRouteContext) {
     if (deleted.count === 0) {
       return NextResponse.json({ error: "Hike not found" }, { status: 404 });
     }
-  } catch {
-    return NextResponse.json(
-      { error: "This hike cannot be deleted while it is used by an adventure." },
-      { status: 409 },
-    );
+  } catch (error) {
+    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2003") {
+      return NextResponse.json(
+        { error: "This hike cannot be deleted while it is used by an adventure." },
+        { status: 409 },
+      );
+    }
+    console.error("Hike deletion failed", error);
+    return NextResponse.json({ error: "Unable to delete hike right now." }, { status: 503 });
   }
 
   return new Response(null, { status: 204 });
