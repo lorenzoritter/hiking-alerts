@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 
+import { Prisma } from "@/generated/prisma/client";
 import { getCurrentUser } from "@/lib/auth/dal";
 import { prisma } from "@/lib/prisma";
 import { contactUpdateSchema } from "@/lib/contacts/definitions";
@@ -38,27 +39,34 @@ export async function PATCH(request: Request, context: ContactRouteContext) {
   }
 
   const { name, phone, email, isDefault } = parsed.data;
-  const contact = await prisma.$transaction(async (transaction) => {
-    if (isDefault) {
-      await transaction.emergencyContact.updateMany({
-        where: { ownerUserId: user.id, id: { not: id } },
-        data: { isDefault: false },
+  try {
+    const contact = await prisma.$transaction(async (transaction) => {
+      if (isDefault) {
+        await transaction.emergencyContact.updateMany({
+          where: { ownerUserId: user.id, id: { not: id } },
+          data: { isDefault: false },
+        });
+      }
+
+      return transaction.emergencyContact.update({
+        where: { id },
+        data: {
+          ...(name !== undefined && { name }),
+          ...(phone !== undefined && { phone: phone || null }),
+          ...(email !== undefined && { email: email ? email.toLowerCase() : null }),
+          ...(isDefault !== undefined && { isDefault }),
+        },
+        select: { id: true, name: true, phone: true, email: true, isDefault: true },
       });
-    }
-
-    return transaction.emergencyContact.update({
-      where: { id },
-      data: {
-        ...(name !== undefined && { name }),
-        ...(phone !== undefined && { phone: phone || null }),
-        ...(email !== undefined && { email: email ? email.toLowerCase() : null }),
-        ...(isDefault !== undefined && { isDefault }),
-      },
-      select: { id: true, name: true, phone: true, email: true, isDefault: true },
     });
-  });
 
-  return NextResponse.json({ contact });
+    return NextResponse.json({ contact });
+  } catch (error) {
+    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002") {
+      return NextResponse.json({ error: "Another default contact was selected concurrently. Please try again." }, { status: 409 });
+    }
+    throw error;
+  }
 }
 
 export async function DELETE(_request: Request, context: ContactRouteContext) {
