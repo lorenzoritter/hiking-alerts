@@ -82,7 +82,7 @@ export function AdventuresPanel({ hikes, contacts, initialAdventures, timezone }
       if (!response.ok) {
         setError(body?.error ?? "Unable to create adventure.");
       } else {
-        setAdventures((current) => [{ ...body.adventure, events: [], contacts: selectedContacts.map((id) => ({ contact: { id, name: contacts.find((contact) => contact.id === id)?.name ?? "Contact" } })) }, ...current]);
+        setAdventures((current) => [{ ...body.adventure, events: [], comments: [], contacts: selectedContacts.map((id) => ({ contact: { id, name: contacts.find((contact) => contact.id === id)?.name ?? "Contact" } })) }, ...current]);
       }
     } catch {
       setError("Unable to reach the server. Please try again.");
