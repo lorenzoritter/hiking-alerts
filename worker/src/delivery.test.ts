@@ -83,7 +83,7 @@ test("recovers stale processing rows before claiming pending work", async () => 
   const staleNotification = { ...baseNotification, status, lastAttemptAt: new Date(Date.now() - 5 * 60 * 1000) };
   const updates: Record<string, unknown>[] = [];
   const database = { notificationLog: {
-    updateMany: async ({ where, data }: { where: Record<string, unknown>; data: Record<string, unknown> }) => {
+    updateMany: async ({ where }: { where: Record<string, unknown>; data: Record<string, unknown> }) => {
       if (where.status === "PROCESSING") { status = "PENDING"; return { count: 1 }; }
       if (where.status === "PENDING") { status = "PROCESSING"; return { count: 1 }; }
       return { count: 0 };
