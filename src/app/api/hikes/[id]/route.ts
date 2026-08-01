@@ -66,7 +66,7 @@ export async function DELETE(_request: Request, context: HikeRouteContext) {
         { status: 409 },
       );
     }
-    console.error("Hike deletion failed", error);
+    console.error("Hike deletion failed", { type: error instanceof Error ? error.name : typeof error });
     return NextResponse.json({ error: "Unable to delete hike right now." }, { status: 503 });
   }
 
