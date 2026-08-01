@@ -66,6 +66,9 @@ export async function POST(request: Request) {
   if (startAt && startAt >= expectedReturnAt) {
     return NextResponse.json({ error: "Expected return must be after the start time" }, { status: 400 });
   }
+  if (expectedReturnAt <= new Date()) {
+    return NextResponse.json({ error: "Expected return must be in the future" }, { status: 400 });
+  }
 
   const hike = await prisma.hike.findFirst({ where: { id: data.hikeId, userId: user.id }, select: { id: true } });
   if (!hike) {
