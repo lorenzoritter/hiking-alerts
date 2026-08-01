@@ -93,7 +93,7 @@ export async function POST(request: Request) {
         create: data.contactIds.map((contactId) => ({
           contactId,
           accessToken: crypto.randomUUID(),
-          accessTokenExpiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+          accessTokenExpiresAt: new Date(Math.max(Date.now() + 30 * 24 * 60 * 60 * 1000, expectedReturnAt.getTime() + 30 * 24 * 60 * 60 * 1000)),
         })),
       },
     },
